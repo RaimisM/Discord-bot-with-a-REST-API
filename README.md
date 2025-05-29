@@ -1,3 +1,6 @@
+## Project Structure
+
+```bash
 Discord-Bot-with-a-REST-API
 ├── data
 │   └── congratulations.db
@@ -92,3 +95,4 @@ Discord-Bot-with-a-REST-API
 ├── tsconfig.eslint.json
 ├── tsconfig.json
 └── vitest.config.js
+```
