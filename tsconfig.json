@@ -1,6 +1,6 @@
 {
   "extends": "@tsconfig/node18/tsconfig.json",
-  "include": ["**/*.ts"],
+  "include": ["src/**/*.ts", "index.ts"],
 
   "compilerOptions": {
     "baseUrl": ".",
@@ -8,11 +8,16 @@
     "outDir": "dist",
 
     "module": "ESNext",
-    "target": "ESNext",
+    "target": "ES2022",
     "moduleResolution": "Node",
 
     "strict": true,
     "sourceMap": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
 
     "types": ["vitest/globals"],
 
