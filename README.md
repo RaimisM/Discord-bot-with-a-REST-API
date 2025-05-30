@@ -3,7 +3,7 @@
 ```bash
 Discord-Bot-with-a-REST-API
 ├── data
-│   └── congratulations.db
+│   └── database.db
 ├── src
 │   ├── app.ts
 │   ├── index.ts

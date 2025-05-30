@@ -17,3 +17,5 @@ coverage
 data/database*
 
 .env
+.env.local
+.env.*.local
