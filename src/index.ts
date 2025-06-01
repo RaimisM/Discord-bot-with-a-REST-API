@@ -1,19 +1,30 @@
-import 'dotenv/config';
-import createApp from './app';
-import createDatabase from './database';
-import Logger from './utils/errors/ErrorLogger';
+import 'dotenv/config'
+import createApp from './app'
+import createDatabase from './database'
+import Logger from '@/config/configErrorLogger'
+import { DATABASE_URL, GIPHY_API_KEY } from '@/config/config'
+import createImagesManager from '@/modules/images/fetchImage'
+import loadImages from '@/modules/images/loadImages'
 
-const { DATABASE_URL } = process.env;
-const PORT = 3000;
+const PORT = 3000
 
-if (!DATABASE_URL) {
-  throw new Error('Provide DATABASE_URL in your environment variables.');
+async function startServer() {
+  try {
+    const database = createDatabase(DATABASE_URL)
+    const app = createApp(database)
+
+    const imagesManager = createImagesManager(GIPHY_API_KEY)
+    await loadImages(database, imagesManager)
+    Logger.info('Images successfully loaded into the database')
+
+    app.listen(PORT, () => {
+      Logger.info(`Server is running at http://localhost:${PORT}`)
+    })
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error)
+    Logger.error(`Server failed to start: ${message}`)
+    process.exit(1)
+  }
 }
 
-const database = createDatabase(DATABASE_URL);
-const app = createApp(database);
-
-app.listen(PORT, () => {
-  // eslint-disable-next-line no-console
-  console.log(`Server is running at http://localhost:${PORT}`);
-});
+startServer()
