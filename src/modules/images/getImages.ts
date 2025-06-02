@@ -6,6 +6,10 @@ export type Image = {
   title: string
 }
 
+export interface ImagesManager {
+  getGifs: (keywords: string) => Promise<Image[]>
+}
+
 type GiphyGifObject = {
   id: string
   title: string
@@ -22,9 +26,9 @@ type GiphyResponse = {
 
 const GIPHY_API_URL = 'https://api.giphy.com/v1/gifs/search'
 
-export default function createImagesManager(apiKey?: string) {
+export default function createImagesManager(apiKey?: string): ImagesManager {
   return {
-    async fetchGifs(query: string): Promise<Image[]> {
+    async getGifs(keywords: string): Promise<Image[]> {
       if (!apiKey) {
         const errorMessage = 'Giphy API key is missing'
         Logger.error(errorMessage)
@@ -34,11 +38,17 @@ export default function createImagesManager(apiKey?: string) {
       try {
         const params = new URLSearchParams({
           api_key: apiKey,
-          q: query,
-          limit: '2',
+          q: keywords,
+          limit: '25',
+          lang: 'en',
+          rating: 'g',
         })
 
         const response = await fetch(`${GIPHY_API_URL}?${params.toString()}`)
+        if (!response.ok) {
+          throw new Error(`Giphy API returned status ${response.status}`)
+        }
+
         const data = (await response.json()) as GiphyResponse
 
         return data.data.map((gif) => ({

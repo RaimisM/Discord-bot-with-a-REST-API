@@ -1,5 +1,6 @@
 import { vi, describe, afterEach, test, expect } from 'vitest'
 import saveImages from '../saveImages'
+import type { Image } from '../getImages'
 
 type Database = any
 
@@ -21,17 +22,19 @@ describe('saveImages', () => {
   })
 
   test('should throw if no images are provided', async () => {
-    const images: any[] = []
+    const images: Image[] = []
 
-    await expect(saveImages(db, images)).rejects.toThrow('There is no images to save')
+    await expect(saveImages(db, images)).rejects.toThrow(
+      'There are no images to save'
+    )
     expect(mockInsertImage).not.toHaveBeenCalled()
     expect(mockDeleteImage).toHaveBeenCalledTimes(1)
   })
 
   test('should insert and delete images correctly', async () => {
-    const images = [
-      { id: 1, url: 'image1.jpg' },
-      { id: 2, url: 'image2.jpg' },
+    const images: Image[] = [
+      { id: '1', url: 'image1.jpg', title: 'Image 1' },
+      { id: '2', url: 'image2.jpg', title: 'Image 2' },
     ]
 
     const result = await saveImages(db, images)
@@ -47,7 +50,7 @@ describe('saveImages', () => {
       throw new Error('DB error on delete')
     })
 
-    const images = [{ id: 1, url: 'image1.jpg' }]
+    const images: Image[] = [{ id: '1', url: 'image1.jpg', title: 'Image 1' }]
 
     await expect(saveImages(db, images)).rejects.toThrow('DB error on delete')
     expect(mockInsertImage).not.toHaveBeenCalled()
@@ -59,7 +62,7 @@ describe('saveImages', () => {
       throw new Error('DB error on insert')
     })
 
-    const images = [{ id: 1, url: 'image1.jpg' }]
+    const images: Image[] = [{ id: '1', url: 'image1.jpg', title: 'Image 1' }]
 
     await expect(saveImages(db, images)).rejects.toThrow('DB error on insert')
     expect(mockDeleteImage).toHaveBeenCalledTimes(1)

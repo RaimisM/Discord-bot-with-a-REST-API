@@ -3,7 +3,7 @@ import createApp from './app'
 import createDatabase from './database'
 import Logger from '@/config/configErrorLogger'
 import { DATABASE_URL, GIPHY_API_KEY } from '@/config/config'
-import createImagesManager from '@/modules/images/fetchImages'
+import createImagesManager from '@/modules/images/getImages'
 import loadImages from '@/modules/images/loadImages'
 
 const PORT = 3000
