@@ -24,15 +24,15 @@ Discord-Bot-with-a-REST-API
 │   │   ├── discord
 │   │   │   └── discordService.ts
 │   │   ├── images
-│   │   │   ├── index.ts
-│   │   │   ├── fetchImage.ts
+│   │   │   ├── loadImages.ts
+│   │   │   ├── getImages.ts
 │   │   │   ├── repository.ts
-│   │   │   ├── saveImage.ts
+│   │   │   ├── saveImages.ts
 │   │   │   └── tests
-│   │   │       ├── fetchImage.test.ts
+│   │   │       ├── loadImages.test.ts
 │   │   │       ├── repository.test.ts
 │   │   │       ├── saveImage.test.ts
-│   │   │       └── index.test.ts
+│   │   │       └── getImages.test.ts
 │   │   ├── messages
 │   │   │   ├── controller.ts
 │   │   │   ├── repository.ts
