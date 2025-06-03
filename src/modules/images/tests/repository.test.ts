@@ -2,14 +2,19 @@ import { describe, beforeAll, afterAll, beforeEach, it, expect } from 'vitest'
 import createImageRepository from '../repository'
 import createTestDatabase from '../../../../tests/utils/createTestDatabase'
 import cleanDatabase from '../../../../tests/utils/createTestDatabase/databaseCleaner'
+import { createFor, selectAllFor } from '../../../../tests/utils/records'
 
 let db: any
 let repository: ReturnType<typeof createImageRepository>
+let insertImages: ReturnType<typeof createFor<'images', any>>
+let selectImages: ReturnType<typeof selectAllFor<'images', any>>
 
 beforeAll(async () => {
   const testDb = await createTestDatabase()
   db = testDb.db
   repository = createImageRepository(db)
+  insertImages = createFor(db, 'images')
+  selectImages = selectAllFor(db, 'images')
   await cleanDatabase(db)
 })
 
@@ -24,7 +29,7 @@ beforeEach(async () => {
 
 describe('ImagesRepository', () => {
   it('should retrieve all images', async () => {
-    await repository.insertImages([
+    await insertImages([
       { url: 'url1' },
       { url: 'url2' },
       { url: 'url3' },
@@ -42,7 +47,7 @@ describe('ImagesRepository', () => {
   })
 
   it('should insert new images', async () => {
-    await repository.insertImages([
+    await insertImages([
       { url: 'url1' },
       { url: 'url2' },
       { url: 'url3' },
@@ -62,12 +67,12 @@ describe('ImagesRepository', () => {
       ])
     )
 
-    const allImages = await repository.getImages()
+    const allImages = await selectImages()
     expect(allImages).toHaveLength(5)
   })
 
   it('should delete all images', async () => {
-    await repository.insertImages([
+    await insertImages([
       { url: 'url1' },
       { url: 'url2' },
     ])
@@ -75,7 +80,7 @@ describe('ImagesRepository', () => {
     const result = await repository.deleteImages()
     expect(result).toBeDefined()
 
-    const images = await repository.getImages()
+    const images = await selectImages()
     expect(images).toHaveLength(0)
   })
 })
