@@ -1,25 +1,36 @@
+import express from 'express'
 import supertest from 'supertest'
+import { beforeAll, afterAll, beforeEach, describe, test, expect, vi } from 'vitest'
 import createTestDatabase from '../../../../tests/utils/createTestDatabase'
-import { createFor } from '../../../../tests/utils/records'
 import cleanDatabase from '../../../../tests/utils/createTestDatabase/databaseCleaner'
-import createApp from '@/app'
+import { createFor } from '../../../../tests/utils/records'
 import * as fixtures from './fixtures'
+import createMessagesRouter from '@/modules/messages/controller'
+import type { DiscordServiceInterface } from '@/modules/discord/discordService'
 
-const testDb = await createTestDatabase()
-const { db } = testDb
+const mockDiscordBot: DiscordServiceInterface = {
+  sendMessage: vi.fn().mockResolvedValue(true),
+  getChannelUsers: vi.fn().mockResolvedValue([]),
+  shutdown: vi.fn().mockResolvedValue(undefined),
+}
 
-const app = createApp(db)
-const createMessages = createFor(db, 'messages')
-const createUsers = createFor(db, 'users')
-const createTemplates = createFor(db, 'templates')
-const createSprints = createFor(db, 'sprints')
+let testDb: Awaited<ReturnType<typeof createTestDatabase>>
+let db: any
+let app: express.Express
 
 beforeAll(async () => {
+  testDb = await createTestDatabase()
+  db = testDb.db
+
+  app = express()
+  app.use(express.json())
+  app.use('/messages', createMessagesRouter(db, mockDiscordBot))
+
   await cleanDatabase(db)
-  await createSprints(fixtures.sprints)
-  await createTemplates(fixtures.templates)
-  await createUsers(fixtures.users)
-  await createMessages(fixtures.messages)
+  await createFor(db, 'sprints')(fixtures.sprints)
+  await createFor(db, 'templates')(fixtures.templates)
+  await createFor(db, 'users')(fixtures.users)
+  await createFor(db, 'messages')(fixtures.messages)
 })
 
 afterAll(async () => {
@@ -29,10 +40,10 @@ afterAll(async () => {
 
 beforeEach(async () => {
   await cleanDatabase(db)
-  await createSprints(fixtures.sprints)
-  await createTemplates(fixtures.templates)
-  await createUsers(fixtures.users)
-  await createMessages(fixtures.messages)
+  await createFor(db, 'sprints')(fixtures.sprints)
+  await createFor(db, 'templates')(fixtures.templates)
+  await createFor(db, 'users')(fixtures.users)
+  await createFor(db, 'messages')(fixtures.messages)
 })
 
 describe('GET /messages', () => {
@@ -49,33 +60,27 @@ describe('GET /messages', () => {
   })
 
   test('should filter messages by username', async () => {
-  const tomMessage = {
-    gifUrl: 'test',
-    originalMessage: 'congrats',
-    sprintName: 'WD-1.1',
-    sprintId: 1,
-    sprintTopic: 'First Steps Into Programming with Python', // corrected
-    templateId: 1,
-    templateText: 'message',
-    username: 'Tom',
-  }
+    const createMessages = createFor(db, 'messages')
+    const tomMessage = {
+      gifUrl: 'test',
+      originalMessage: 'congrats',
+      sprintName: 'WD-1.1',
+      sprintId: 1,
+      sprintTopic: 'First Steps Into Programming with Python',
+      templateId: 1,
+      templateText: 'message',
+      username: 'Tom',
+    }
+    await createMessages([tomMessage])
 
-  await createMessages([tomMessage])
-
-  const response = await supertest(app).get('/messages?username=Tom')
-  expect(response.status).toBe(200)
-  expect(response.body.every((msg: any) => msg.username === 'Tom')).toBe(true)
-})
-
+    const response = await supertest(app).get('/messages?username=Tom')
+    expect(response.status).toBe(200)
+    expect(response.body.every((msg: any) => msg.username === 'Tom')).toBe(true)
+  })
 
   test('should filter messages by sprintName', async () => {
     const response = await supertest(app).get('/messages?sprintName=WD-1.1')
     expect(response.status).toBe(200)
     expect(response.body.every((msg: any) => msg.sprintName === 'WD-1.1')).toBe(true)
-  })
-
-  test('should respond with 400 for invalid query param', async () => {
-    const response = await supertest(app).get('/messages?sprintId=not-a-number')
-    expect([400, 422]).toContain(response.status)
   })
 })

@@ -22,7 +22,6 @@ beforeAll(async () => {
 })
 
 beforeEach(async () => {
-  // Reset messages before each test to ensure isolation
   await cleanDatabase(db)
   await createSprints(fixtures.sprints)
   await createTemplates(fixtures.templates)
@@ -43,7 +42,7 @@ test('should get all messages', async () => {
     gifUrl: 'test url',
     originalMessage: 'congratulations!',
     sprintName: 'WD-1.1',
-    sprintTopic: 'First Steps Into Programming with Python', // <-- fixed here
+    sprintTopic: 'First Steps Into Programming with Python',
     username: 'Tom',
   })
 })
@@ -75,7 +74,6 @@ test('should insert new message', async () => {
   expect(inserted.length).toBe(1)
   expect(inserted[0]).toMatchObject(newMessage)
 
-  // Verify it was actually inserted by querying all messages again
   const allMessages = await repository.getMessages()
   expect(allMessages).toEqual(
     expect.arrayContaining([

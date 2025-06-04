@@ -27,13 +27,10 @@ export default function createRepository(db: Kysely<DB>): MessageRepository {
         query = query.where('sprintName', '=', options.sprintName)
       }
 
-      // Return array (empty if no matches)
       return query.execute()
     },
 
     async insertMessages(messages) {
-      // Insert returns inserted rows on PostgreSQL with `returning('*')`
-      // Adjust as per your DB or client config
 
       const inserted = await db
         .insertInto('messages')

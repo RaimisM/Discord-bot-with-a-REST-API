@@ -1,18 +1,18 @@
 import { Router } from 'express'
 import type { Database } from '@/database'
-import { messageManager } from './messages'
+import { createMessageManager } from './messages'
 import { jsonRoute, unsupportedRoute } from '@/utils/middleware'
-import { DiscordService } from '../discord/discordService'
+import type { DiscordServiceInterface } from '../discord/discordService'
 
 export default (db: Database, discordBot: DiscordServiceInterface) => {
   const router = Router()
 
-  const messageService = messageManager(db, discordBot)
+  const messageService = createMessageManager(db, discordBot)
 
   router
     .route('/')
     .get(jsonRoute(messageService.getMessages))
-    .post(jsonRoute(messageService.sendMessage))
+    .post(jsonRoute(messageService.createMessage))
     .patch(unsupportedRoute)
     .delete(unsupportedRoute)
 

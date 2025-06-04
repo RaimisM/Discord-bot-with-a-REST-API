@@ -5,38 +5,38 @@ import { ZodError } from 'zod'
 const { NODE_ENV } = process.env
 const isTest = NODE_ENV === 'test'
 
-function getErrorStatusCode(error: Error) {
-  if ('status' in error && typeof error.status === 'number') {
+function getErrorStatusCode(error: unknown) {
+  if (typeof error === 'object' && error && 'status' in error && typeof error.status === 'number') {
     return error.status
   }
 
   if (error instanceof ZodError) return StatusCodes.BAD_REQUEST
-
   return StatusCodes.INTERNAL_SERVER_ERROR
 }
 
-/**
- * Reports error in a simple structured JSON format.
- */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const jsonErrors: ErrorRequestHandler = (error, _req, res, _next) => {
   const statusCode = getErrorStatusCode(error)
 
-  // display error in the console
   if (!isTest) {
-    // tests tend to produce errors on purpose and
-    // we don't want to pollute the console expected behavior
     // eslint-disable-next-line no-console
     console.error(error)
   }
 
-  res.status(statusCode).json({
+  if (error instanceof ZodError) {
+    return res.status(statusCode).json({
+      error: {
+        message: 'Validation error',
+        errors: error.errors,
+      },
+    })
+  }
+
+  return res.status(statusCode).json({
     error: {
-      message: error.message ?? 'Internal server error',
-      ...error,
+      message: error.message || 'Internal server error',
     },
   })
 }
-
 
 export default jsonErrors
