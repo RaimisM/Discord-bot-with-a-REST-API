@@ -1,10 +1,18 @@
 import express from 'express'
 import supertest from 'supertest'
-import { beforeAll, afterAll, beforeEach, describe, test, expect, vi } from 'vitest'
+import {
+  beforeAll,
+  afterAll,
+  beforeEach,
+  describe,
+  test,
+  expect,
+  vi,
+} from 'vitest'
 import createTestDatabase from '../../../../tests/utils/createTestDatabase'
 import cleanDatabase from '../../../../tests/utils/createTestDatabase/databaseCleaner'
 import { createFor } from '../../../../tests/utils/records'
-import * as fixtures from './fixtures'
+import * as fixtures from '../../../../tests/utils/fixtures'
 import createMessagesRouter from '@/modules/messages/controller'
 import type { DiscordServiceInterface } from '@/modules/discord/discordService'
 
@@ -81,6 +89,8 @@ describe('GET /messages', () => {
   test('should filter messages by sprintName', async () => {
     const response = await supertest(app).get('/messages?sprintName=WD-1.1')
     expect(response.status).toBe(200)
-    expect(response.body.every((msg: any) => msg.sprintName === 'WD-1.1')).toBe(true)
+    expect(response.body.every((msg: any) => msg.sprintName === 'WD-1.1')).toBe(
+      true
+    )
   })
 })

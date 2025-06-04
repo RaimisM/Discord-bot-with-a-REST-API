@@ -2,7 +2,7 @@ import createTestDatabase from '../../../../tests/utils/createTestDatabase'
 import { createFor } from '../../../../tests/utils/records'
 import cleanDatabase from '../../../../tests/utils/createTestDatabase/databaseCleaner'
 import createRepository from '../repository'
-import * as fixtures from './fixtures'
+import * as fixtures from '../../../../tests/utils/fixtures'
 
 const testDb = await createTestDatabase()
 const { db } = testDb
@@ -50,13 +50,17 @@ test('should get all messages', async () => {
 test('should find messages by username', async () => {
   const messages = await repository.getMessages({ username: 'Tom' })
   expect(messages.length).toBeGreaterThan(0)
-  expect(messages.every((msg: { username: string }) => msg.username === 'Tom')).toBe(true)
+  expect(
+    messages.every((msg: { username: string }) => msg.username === 'Tom')
+  ).toBe(true)
 })
 
 test('should find messages by sprint name', async () => {
   const messages = await repository.getMessages({ sprintName: 'WD-1.1' })
   expect(messages.length).toBeGreaterThan(0)
-  expect(messages.every((msg: { sprintName: string }) => msg.sprintName === 'WD-1.1')).toBe(true)
+  expect(
+    messages.every((msg: { sprintName: string }) => msg.sprintName === 'WD-1.1')
+  ).toBe(true)
 })
 
 test('should insert new message', async () => {
@@ -84,4 +88,3 @@ test('should insert new message', async () => {
     ])
   )
 })
-
