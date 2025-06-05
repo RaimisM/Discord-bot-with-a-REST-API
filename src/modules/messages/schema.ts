@@ -9,16 +9,16 @@ const requestSchema = z.object({
     .min(3, { message: 'Must be 3 or more characters long' })
     .max(100, { message: 'Must be less then 100 characters long' })
     .optional(),
-  sprint: z
+  sprintName: z
     .string({
-      invalid_type_error: 'Should be a string',
+      invalid_type_error: 'Sprint name must be a string',
     })
     .trim()
     .min(3, { message: 'Must be 3 or more characters long' })
     .optional(),
   limit: z
     .number({
-      invalid_type_error: 'Limit must be a integer',
+      invalid_type_error: 'Limit must be an integer',
     })
     .positive()
     .optional(),
@@ -34,7 +34,7 @@ const payloadSchema = z.object({
     .max(100, { message: 'Must be less then 100 characters long' }),
   sprintName: z
     .string({
-      invalid_type_error: 'sprintName must be a string',
+      invalid_type_error: 'Sprint name must be a string',
     })
     .trim()
     .min(3, { message: 'Must be 3 or more characters long' }),

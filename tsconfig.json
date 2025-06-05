@@ -1,6 +1,11 @@
 {
   "extends": "@tsconfig/node18/tsconfig.json",
-  "include": ["src/**/*.ts", "index.ts", "tests/utils/fixtures.ts"],
+  "include": [
+    "src/**/*.ts",
+    "index.ts",
+    "tests/utils/fixtures.ts",
+    "src/modules/messages/schema.ts"
+  ],
 
   "compilerOptions": {
     "baseUrl": ".",

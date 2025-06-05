@@ -42,9 +42,9 @@ describe('Validator tests', () => {
       expect(() => validGetRequest(validQuery)).not.toThrow()
     })
 
-    test('should validate a request with sprint only', () => {
+    test('should validate a request with sprintName only', () => {
       const validQuery = {
-        sprint: 'WD-1-2',
+        sprintName: 'WD-1-2',
       }
 
       expect(() => validGetRequest(validQuery)).not.toThrow()
@@ -53,7 +53,7 @@ describe('Validator tests', () => {
     test('should validate a request with all optional fields', () => {
       const validQuery = {
         username: 'Tom',
-        sprint: 'WD-1-2',
+        sprintName: 'WD-1-2',
         limit: 5,
       }
 
@@ -76,9 +76,9 @@ describe('Validator tests', () => {
       expect(() => validGetRequest(invalidQuery)).toThrow()
     })
 
-    test('should throw error if sprint is too short', () => {
+    test('should throw error if sprintName is too short', () => {
       const invalidQuery = {
-        sprint: 'X',
+        sprintName: 'X',
       }
 
       expect(() => validGetRequest(invalidQuery)).toThrow()

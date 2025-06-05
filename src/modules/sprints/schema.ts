@@ -1,0 +1,44 @@
+import { z } from 'zod'
+
+export const sprintSchema = z.object({
+  sprintName: z
+    .string({
+      invalid_type_error: 'SprintName must be a string',
+    })
+    .min(3, { message: 'Must be 3 or more characters long' })
+    .trim(),
+  topicName: z
+    .string({
+      invalid_type_error: 'Topic name must be a string',
+    })
+    .trim()
+    .min(5, { message: 'Must be 5 or more characters long' }),
+  id: z
+    .number({
+      invalid_type_error: 'id must be a number',
+    })
+    .positive(),
+})
+
+export const querySchema = z.object({
+  limit: z
+    .number({
+      invalid_type_error: 'Limit must be an integer',
+    })
+    .positive()
+    .optional(),
+  sprintName: z
+    .string({
+      invalid_type_error: 'Sprint code must be a string',
+    })
+    .trim()
+    .optional(),
+  id: z
+    .number({
+      invalid_type_error: 'id must be a number',
+    })
+    .positive()
+    .optional(),
+})
+
+export const sprintUpdateSchema = sprintSchema.omit({ id: true }).partial()
