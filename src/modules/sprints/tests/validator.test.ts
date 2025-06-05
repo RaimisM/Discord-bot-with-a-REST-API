@@ -4,21 +4,28 @@ const { parseSprintId, parseSprintQuery, parseSprint, parseSprintUpdatable } = s
 
 describe('Sprint Validator Tests', () => {
   describe('parseSprintId', () => {
-    it('should validate a valid sprint ID object', () => {
-      const validId = { id: 1 }
-      expect(() => parseSprintId(validId)).not.toThrow()
-    })
-
-    it('should throw if id is missing', () => {
-      const invalidId = {}
-      expect(() => parseSprintId(invalidId)).toThrow()
-    })
-
-    it('should throw if id is not a number', () => {
-      const invalidId = { id: 'not-a-number' }
-      expect(() => parseSprintId(invalidId)).toThrow()
-    })
+  it('should validate a valid sprint ID number', () => {
+    const validId = 1
+    expect(() => parseSprintId(validId)).not.toThrow()
   })
+
+  it('should throw if id is missing (undefined)', () => {
+    expect(() => parseSprintId(undefined)).toThrow()
+  })
+
+  it('should throw if id is not a number', () => {
+    const invalidId = 'not-a-number'
+    expect(() => parseSprintId(invalidId)).toThrow()
+  })
+
+  it('should throw if id is negative', () => {
+    expect(() => parseSprintId(-5)).toThrow()
+  })
+
+  it('should throw if id is zero', () => {
+    expect(() => parseSprintId(0)).toThrow()
+  })
+})
 
   describe('parseSprintQuery', () => {
     it('should validate query with all optional fields', () => {
