@@ -1,20 +1,14 @@
 import { Router } from 'express'
 import type { Database } from '@/database'
-import createdUsersService from './repository'
-import { jsonRoute } from '@/utils/middleware'
+import createController from './controller'
 
-export default (db: Database) => {
+const usersManager = (db: Database) => {
   const router = Router()
-  const userService = createdUsersService(db)
-
-  router.route('/').get(jsonRoute(userService.getUsers))
-
+  const controller = createController(db)
+  
+  router.use('/users', controller)
+  
   return router
 }
-export default function createUsersManager() {
-  return {
-    getUser(username: string) {
-      return { username }
-    },
-  }
-}
+
+export default usersManager

@@ -77,7 +77,6 @@ describe('Users Repository', () => {
     
     expect(createdUser).toEqual(expect.objectContaining(newUser))
     
-    // Verify the user was actually added to the database
     const foundUser = await usersRepository.findById('999')
     expect(foundUser).toEqual(expect.objectContaining(newUser))
   })
@@ -96,20 +95,16 @@ describe('Users Repository', () => {
       })
     )
     
-    // Verify the user was actually updated in the database
     const foundUser = await usersRepository.findById('123')
     expect(foundUser?.username).toBe('UpdatedUser1')
   })
 
   test('should delete user', async () => {
-    // First verify the user exists
     const userBeforeDelete = await usersRepository.findById('789')
     expect(userBeforeDelete).toBeDefined()
     
-    // Delete the user
     await usersRepository.delete('789')
     
-    // Verify the user was deleted
     const userAfterDelete = await usersRepository.findById('789')
     expect(userAfterDelete).toBeUndefined()
   })
@@ -117,22 +112,18 @@ describe('Users Repository', () => {
   test('should handle duplicate username creation gracefully', async () => {
     const duplicateUser = {
       id: '888',
-      username: 'User2', // This username already exists
+      username: 'User2',
     }
     
-    // This test assumes your repository throws an error or handles duplicates
-    // Adjust the expectation based on your actual implementation
     await expect(usersRepository.create(duplicateUser)).rejects.toThrow()
   })
 
   test('should return empty array when no users exist', async () => {
-    // Clean the database completely
     await cleanDatabase(db)
     
     const users = await usersRepository.findAll()
     expect(users).toEqual([])
     
-    // Restore test data for other tests
     await createUsers([
       { id: '123', username: 'User1' },
       { id: '456', username: 'User2' },
@@ -143,5 +134,5 @@ describe('Users Repository', () => {
 
 afterAll(async () => {
   await cleanDatabase(db)
-  await testDb.destroy() // Close database connection
+  await testDb.destroy()
 })

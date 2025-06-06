@@ -48,7 +48,7 @@ describe('Users Controller', () => {
     const newUser = { id: '789', username: 'NewUser' }
     const response = await request(app).post('/users').send(newUser)
     
-    expect(response.status).toBe(200)
+    expect(response.status).toBe(201)
     expect(response.body).toEqual(expect.objectContaining(newUser))
   })
 

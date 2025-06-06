@@ -1,4 +1,5 @@
 import { Router } from 'express'
+import { StatusCodes } from 'http-status-codes'
 import type { Database } from '@/database'
 import createUsersRepository from './repository'
 import { jsonRoute } from '@/utils/middleware'
@@ -10,7 +11,13 @@ export default (db: Database) => {
   router
     .route('/')
     .get(jsonRoute(repo.findAll))
-    .post(jsonRoute(async (req) => repo.create(req.body)))
+    .post(jsonRoute(async (req) => {
+      const user = await repo.create(req.body)
+      return {
+        statusCode: StatusCodes.CREATED,
+        body: user,
+      }
+    }))
 
   router
     .route('/:id')
@@ -21,7 +28,7 @@ export default (db: Database) => {
       return { success: true }
     }))
 
-  router.get('/username/:username', jsonRoute(async (req) => 
+  router.get('/username/:username', jsonRoute(async (req) =>
     repo.findByUsername(req.params.username)
   ))
 
