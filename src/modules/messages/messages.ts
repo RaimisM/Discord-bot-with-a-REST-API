@@ -1,8 +1,8 @@
 import { Request } from 'express'
 import createMessagesRepository from './repository'
 import createSprintsRepository from '@/modules/sprints/repository'
-import createUsersManager from '@/modules/users/usersManager'
-import reloadUsersData from '@/modules/users/loadUsersData'
+import createUsersManager from '@/modules/users/users'
+import loadUsersData from '@/modules/users/loadUsersData'
 
 import BadRequest from '@/utils/errors/BadRequest'
 import NotFound from '@/utils/errors/NotFound'
@@ -90,7 +90,7 @@ export function createMessageManager(db: any, discordBot: any) {
       ])
 
       // Reload user data with discordBot
-      await reloadUsersData(db, discordBot)
+      await loadUsersData(db, discordBot)
 
       return {
         message: `Message to the Discord user: ${user.username} was sent at: ${messageSent.createdAt}`,

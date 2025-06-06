@@ -11,3 +11,10 @@ export default (db: Database) => {
 
   return router
 }
+export default function createUsersManager() {
+  return {
+    getUser(username: string) {
+      return { username }
+    },
+  }
+}
