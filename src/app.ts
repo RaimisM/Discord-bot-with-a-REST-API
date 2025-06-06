@@ -4,7 +4,7 @@ import { type Database } from './database'
 import messages from '@/modules/messages/controller'
 import templates from '@/modules/templates/controller'
 import sprints from '@/modules/sprints/controller'
-import users from '@/modules/users/controller'
+import users from '@/modules/users/users'
 import DiscordService from '@/modules/discord/discordService'
 import { DISCORD_TOKEN_ID, DISCORD_CHANNEL_ID } from './config/config'
 
