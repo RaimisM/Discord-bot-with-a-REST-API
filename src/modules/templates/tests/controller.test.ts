@@ -26,7 +26,6 @@ afterAll(async () => {
 
 beforeEach(async () => {
   await cleanDatabase(db)
-  // Seed templates fixture for GET tests
   await db.insertInto('templates').values(fixtures.templates).execute()
 })
 
@@ -47,7 +46,6 @@ describe('Templates Controller', () => {
     expect(response.status).toBe(201)
     expect(response.body).toMatchObject(newTemplate)
 
-    // Check it was inserted
     const dbTemplates = await db.selectFrom('templates').selectAll().execute()
     expect(dbTemplates.some(t => t.text === newTemplate.text)).toBe(true)
   })
@@ -82,7 +80,6 @@ describe('Templates Controller', () => {
     const { id } = templates[0]
     const methods = ['get', 'post', 'patch'] as const
 
-    // Use Promise.all with map instead of for-await-of loop
     const responses = await Promise.all(
       methods.map((method) => request(app)[method](`/templates/${id}`))
     )

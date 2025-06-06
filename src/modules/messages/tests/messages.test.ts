@@ -6,7 +6,7 @@ import getRandomTemplate from '../utils/getRandomTemplate'
 import getRandomImage from '../utils/getRandomImage'
 import generateMessage from '../generator'
 import * as validators from '../validator'
-import reloadUsersData from '@/modules/users/reloadUsersData'
+import loadUsersData from '@/modules/users/loadUsersData'
 
 const mockDb = {} as any
 
@@ -33,7 +33,7 @@ vi.mock('../repository', () => ({
   default: vi.fn(() => mockMessagesRepository),
 }))
 
-vi.mock('@/modules/users/reloadUsersData', () => ({
+vi.mock('@/modules/users/loadUsersData', () => ({
   default: vi.fn(),
 }))
 
@@ -67,18 +67,20 @@ describe('messageManager', () => {
 
   it('should validate and return messages', async () => {
     const req = { query: { limit: 5 } }
-    const expectedMessages = [{
-      id: 1,
-      originalMessage: 'Test message',
-      gifUrl: 'https://example.com/image.gif',
-      createdAt: '2024-01-01T00:00:00Z',
-      sprintId: 1,
-      sprintName: 'Sprint 1',
-      sprintTopic: 'Productivity',
-      templateId: 1,
-      templateText: 'Template {username}',
-      username: 'Alice',
-    }]
+    const expectedMessages = [
+      {
+        id: 1,
+        originalMessage: 'Test message',
+        gifUrl: 'https://example.com/image.gif',
+        createdAt: '2024-01-01T00:00:00Z',
+        sprintId: 1,
+        sprintName: 'Sprint 1',
+        sprintTopic: 'Productivity',
+        templateId: 1,
+        templateText: 'Template {username}',
+        username: 'Alice',
+      },
+    ]
 
     ;(validators.validGetRequest as Mock).mockReturnValue(req.query)
     mockMessagesRepository.getMessages.mockResolvedValue(expectedMessages)
@@ -110,24 +112,28 @@ describe('messageManager', () => {
       content: messageContent,
       createdAt: '2024-01-01T00:00:00Z',
     })
-    mockMessagesRepository.insertMessages.mockResolvedValue([{
-      id: 1,
-      originalMessage: messageContent,
-      gifUrl: image,
-      createdAt: '2024-01-01T00:00:00Z',
-      sprintId: sprint.id,
-      sprintName: sprint.sprintName,
-      sprintTopic: sprint.topic,
-      templateId: template.id,
-      templateText: template.text,
-      username: user.username,
-    }])
-    ;(reloadUsersData as Mock).mockResolvedValue(undefined)
+    mockMessagesRepository.insertMessages.mockResolvedValue([
+      {
+        id: 1,
+        originalMessage: messageContent,
+        gifUrl: image,
+        createdAt: '2024-01-01T00:00:00Z',
+        sprintId: sprint.id,
+        sprintName: sprint.sprintName,
+        sprintTopic: sprint.topic,
+        templateId: template.id,
+        templateText: template.text,
+        username: user.username,
+      },
+    ])
+    ;(loadUsersData as Mock).mockResolvedValue(undefined)
 
     const result = await manager.createMessage(req as any)
 
     expect(validators.validPostRequest).toHaveBeenCalledWith(req.body)
-    expect(mockSprintsRepository.getSprints).toHaveBeenCalledWith({ sprintName: body.sprintName })
+    expect(mockSprintsRepository.getSprints).toHaveBeenCalledWith({
+      sprintName: body.sprintName,
+    })
     expect(mockUsersManager.getUser).toHaveBeenCalledWith(body.username)
     expect(getRandomTemplate).toHaveBeenCalled()
     expect(generateMessage).toHaveBeenCalledWith({
@@ -140,31 +146,35 @@ describe('messageManager', () => {
       content: messageContent,
       files: [image],
     })
-    expect(mockMessagesRepository.insertMessages).toHaveBeenCalledWith([{
-      gifUrl: image,
-      originalMessage: messageContent,
-      sprintId: sprint.id,
-      sprintName: sprint.sprintName,
-      sprintTopic: sprint.topic,
-      templateId: template.id,
-      templateText: template.text,
-      username: user.username,
-    }])
-    expect(reloadUsersData).toHaveBeenCalledWith(mockDb, mockDiscordBot)
-    expect(result).toEqual({
-      message: `Message to the Discord user: ${user.username} was sent at: 2024-01-01T00:00:00Z`,
-      insertedMessages: [{
-        id: 1,
-        originalMessage: messageContent,
+    expect(mockMessagesRepository.insertMessages).toHaveBeenCalledWith([
+      {
         gifUrl: image,
-        createdAt: '2024-01-01T00:00:00Z',
+        originalMessage: messageContent,
         sprintId: sprint.id,
         sprintName: sprint.sprintName,
         sprintTopic: sprint.topic,
         templateId: template.id,
         templateText: template.text,
         username: user.username,
-      }],
+      },
+    ])
+    expect(loadUsersData).toHaveBeenCalledWith(mockDb, mockDiscordBot)
+    expect(result).toEqual({
+      message: `Message to the Discord user: ${user.username} was sent at: 2024-01-01T00:00:00Z`,
+      insertedMessages: [
+        {
+          id: 1,
+          originalMessage: messageContent,
+          gifUrl: image,
+          createdAt: '2024-01-01T00:00:00Z',
+          sprintId: sprint.id,
+          sprintName: sprint.sprintName,
+          sprintTopic: sprint.topic,
+          templateId: template.id,
+          templateText: template.text,
+          username: user.username,
+        },
+      ],
     })
   })
 
@@ -205,9 +215,13 @@ describe('messageManager', () => {
     const req = { query: { limit: 5 } }
 
     ;(validators.validGetRequest as Mock).mockReturnValue(req.query)
-    mockMessagesRepository.getMessages.mockRejectedValue(new Error('Database error'))
+    mockMessagesRepository.getMessages.mockRejectedValue(
+      new Error('Database error')
+    )
 
-    await expect(manager.getMessages(req as any)).rejects.toThrow('Database error')
+    await expect(manager.getMessages(req as any)).rejects.toThrow(
+      'Database error'
+    )
   })
 
   it('should handle errors when getting random template fails', async () => {
@@ -218,9 +232,13 @@ describe('messageManager', () => {
     ;(validators.validPostRequest as Mock).mockReturnValue(req.body)
     mockSprintsRepository.getSprints.mockResolvedValue([sprint])
     mockUsersManager.getUser.mockReturnValue(user)
-    ;(getRandomTemplate as Mock).mockRejectedValue(new Error('Template service unavailable'))
+    ;(getRandomTemplate as Mock).mockRejectedValue(
+      new Error('Template service unavailable')
+    )
 
-    await expect(manager.createMessage(req as any)).rejects.toThrow('Template service unavailable')
+    await expect(manager.createMessage(req as any)).rejects.toThrow(
+      'Template service unavailable'
+    )
     expect(generateMessage).not.toHaveBeenCalled()
   })
 
@@ -242,8 +260,12 @@ describe('messageManager', () => {
       content: messageContent,
       createdAt: '2024-01-01T00:00:00Z',
     })
-    mockMessagesRepository.insertMessages.mockRejectedValue(new Error('Database insertion failed'))
+    mockMessagesRepository.insertMessages.mockRejectedValue(
+      new Error('Database insertion failed')
+    )
 
-    await expect(manager.createMessage(req as any)).rejects.toThrow('Database insertion failed')
+    await expect(manager.createMessage(req as any)).rejects.toThrow(
+      'Database insertion failed'
+    )
   })
 })

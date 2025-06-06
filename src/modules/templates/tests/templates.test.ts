@@ -3,7 +3,6 @@ import type { Request } from 'express'
 import { createTemplate } from '../templates'
 import type { Database } from '@/database'
 
-// Mock query builder
 const mockQueryBuilder = {
   selectAll: vi.fn().mockReturnThis(),
   execute: vi.fn(),
@@ -13,7 +12,6 @@ const mockQueryBuilder = {
   where: vi.fn().mockReturnThis(),
 }
 
-// Mock database
 const mockDb = {
   selectFrom: vi.fn().mockReturnValue(mockQueryBuilder),
   insertInto: vi.fn().mockReturnValue(mockQueryBuilder),
@@ -26,7 +24,6 @@ describe('createTemplate', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
-    // Reset the mock query builder
     Object.values(mockQueryBuilder).forEach(mock => {
       if (typeof mock === 'function') {
         mock.mockReturnThis?.()

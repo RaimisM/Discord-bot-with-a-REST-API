@@ -2,7 +2,7 @@ import { Request } from 'express'
 import createMessagesRepository from './repository'
 import createSprintsRepository from '@/modules/sprints/repository'
 import createUsersManager from '@/modules/users/usersManager'
-import reloadUsersData from '@/modules/users/reloadUsersData'
+import reloadUsersData from '@/modules/users/loadUsersData'
 
 import BadRequest from '@/utils/errors/BadRequest'
 import NotFound from '@/utils/errors/NotFound'
@@ -36,13 +36,16 @@ export function createMessageManager(db: any, discordBot: any) {
       const body = validators.validPostRequest(req.body)
 
       // Sprint lookup by sprintName, NOT by id
-      const sprints = await sprintsRepository.getSprints({ sprintName: body.sprintName })
+      const sprints = await sprintsRepository.getSprints({
+        sprintName: body.sprintName,
+      })
       if (!sprints || sprints.length === 0) {
         throw new NotFound('Sprint not found')
       }
 
       // Pick sprint matching sprintName exactly or fallback to first
-      const sprint = sprints.find((s: any) => s.sprintName === body.sprintName) || sprints[0]
+      const sprint =
+        sprints.find((s: any) => s.sprintName === body.sprintName) || sprints[0]
 
       const user = usersManager.getUser(body.username)
       if (!user) {
@@ -82,7 +85,9 @@ export function createMessageManager(db: any, discordBot: any) {
       }
 
       // Insert expects an array of messages
-      const insertedMessages = await messagesRepository.insertMessages([messageToInsert])
+      const insertedMessages = await messagesRepository.insertMessages([
+        messageToInsert,
+      ])
 
       // Reload user data with discordBot
       await reloadUsersData(db, discordBot)
