@@ -1,8 +1,9 @@
-import { Kysely, Insertable, Selectable } from 'kysely'
+import { Kysely, Insertable, Selectable, Updateable } from 'kysely'
 import { DB } from '@/database'
 
-type Template = Selectable<DB['templates']>
-type NewTemplate = Insertable<DB['templates']>
+export type Template = Selectable<DB['templates']>
+export type NewTemplate = Insertable<DB['templates']>
+export type TemplateUpdate = Updateable<DB['templates']>
 
 export const createTemplatesRepository = (db: Kysely<DB>) => {
   const findAll = (): Promise<Template[]> =>
@@ -20,16 +21,24 @@ export const createTemplatesRepository = (db: Kysely<DB>) => {
       .returningAll()
       .executeTakeFirstOrThrow()
 
-  const remove = (id: number): Promise<void> =>
+  const update = (id: number, data: TemplateUpdate): Promise<Template | undefined> =>
+    db.updateTable('templates')
+      .set(data)
+      .where('id', '=', id)
+      .returningAll()
+      .executeTakeFirst()
+
+  const remove = (id: number): Promise<number> =>
     db.deleteFrom('templates')
       .where('id', '=', id)
       .execute()
-      .then(() => {})
+      .then(result => Number(result[0]?.numDeletedRows ?? 0))
 
   return {
     findAll,
     findById,
     create,
+    update,
     remove,
   }
 }

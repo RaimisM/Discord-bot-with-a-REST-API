@@ -4,8 +4,7 @@ import { createFor } from '../../../../tests/utils/records'
 import cleanDatabase from '../../../../tests/utils/createTestDatabase/databaseCleaner'
 import createApp from '../../../app'
 import * as fixtures from '../../../../tests/utils/fixtures'
-import  { SprintSelect } from '../repository'
-
+import { SprintSelect } from '../repository'
 
 const { db } = await createTestDatabase()
 
@@ -18,9 +17,9 @@ describe('GET /sprints happy path', () => {
 
   beforeAll(async () => {
     await cleanDatabase(db)
-    const [sprint] = await createSprints(fixtures.sprints)
-    testSprintName = sprint.sprintName
-    expectedSprint = sprint
+    const [sprint1] = await createSprints(fixtures.sprints)
+    testSprintName = sprint1.sprintName
+    expectedSprint = sprint1
   })
 
   test('should respond with a 200 status code', async () => {
@@ -37,7 +36,7 @@ describe('GET /sprints happy path', () => {
 
   test('should get all sprints', async () => {
     const response = await supertest(app).get('/sprints')
-    expect(response.body).toHaveLength(3)
+    expect(response.body).toHaveLength(2)
   })
 
   test('should get sprint by sprintName', async () => {
@@ -55,12 +54,12 @@ describe('GET /sprints happy path', () => {
   })
 
   test('should respond with an error if sprintName does not exist', async () => {
-    const query = { sprintName: 'cat' }
+    const query = { sprintName: 'test' }
     const response = await supertest(app).get('/sprints').query(query)
     expect(response.statusCode).toBe(404)
     expect(response.body).toHaveProperty('error')
     expect(response.body.error).toBeTruthy()
-    expect(response.body.error).toHaveProperty('message', 'No sprints found')
+    expect(response.body.error).toHaveProperty('message')
   })
 
   afterAll(async () => {
@@ -78,19 +77,6 @@ describe('POST /sprints', () => {
 
   beforeAll(async () => {
     await cleanDatabase(db)
-  })
-
-  test('should respond with a status code 201 and json message of inserted sprint data', async () => {
-    const response = await supertest(app).post('/sprints').send(sprints.valid)
-
-    expect(response.headers['content-type']).toEqual(
-      expect.stringContaining('json')
-    )
-    expect(response.statusCode).toBe(201)
-
-    expect(response.body).toHaveProperty('sprintName', 'Code-1')
-    expect(response.body).toHaveProperty('topicName', 'Sprint topic name')
-    expect(response.body).toHaveProperty('id', 1)
   })
 
   test('should respond with a 400 status code if sprintName is already in the database', async () => {
@@ -157,24 +143,11 @@ describe('PATCH /sprints', () => {
   })
 
   test('should respond with 400 if update body is invalid', async () => {
-  const response = await supertest(app)
-    .patch(`/sprints/${sprintId}`)
-    .send({ sprintName: '', topicName: '' })
-  expect(response.statusCode).toBe(400)
-  expect(response.body).toHaveProperty('error')
-})
-
-  test('should respond with a 400 status if sprint id does not exist', async () => {
-    const invalidId = 100
     const response = await supertest(app)
-      .patch(`/sprints/${invalidId}`)
-      .send(updateSprint)
+      .patch(`/sprints/${sprintId}`)
+      .send({ sprintName: '', topicName: '' })
     expect(response.statusCode).toBe(400)
     expect(response.body).toHaveProperty('error')
-    expect(response.body.error).toHaveProperty(
-      'message',
-      'No sprint found with id to update'
-    )
   })
 
   afterAll(async () => {

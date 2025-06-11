@@ -17,17 +17,21 @@ export default async function loadUsersData(
   const dbUserIds = new Set(dbUsers.map(user => user.id))
 
   const usersToDelete = dbUsers.filter(user => !discordUserIds.has(user.id))
-  await Promise.all(
-    usersToDelete.map(user => usersRepository.delete(user.id))
-  )
+  if (usersToDelete.length > 0) {
+    await Promise.all(
+      usersToDelete.map(user => usersRepository.delete(user.id))
+    )
+  }
 
   const usersToAdd = discordUsers.filter(user => !dbUserIds.has(user.id))
-  await Promise.all(
-    usersToAdd.map(user => 
-      usersRepository.create({
-        id: user.id,
-        username: user.username,
-      })
+  if (usersToAdd.length > 0) {
+    await Promise.all(
+      usersToAdd.map(user => 
+        usersRepository.create({
+          id: user.id,
+          username: user.username,
+        })
+      )
     )
-  )
+  }
 }

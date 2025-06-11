@@ -1,16 +1,17 @@
-import { baseRequestSchema, templatesSchema } from './schema'
+import { baseRequestSchema, templatesSchema, idSchema } from './schema'
 
-const parseTemplateId = (data: unknown) =>
-  baseRequestSchema.pick({ id: true }).parse(data)
+const parseTemplateId = (data: unknown) => 
+  idSchema.parse(data)
 
 const parseTemplateQuery = (data: unknown) =>
-  baseRequestSchema.pick({ id: true, limit: true }).parse(data)
+  baseRequestSchema.parse(data)
 
 const parseTemplateText = (data: unknown) =>
   templatesSchema.pick({ text: true }).parse(data)
 
 const parseTemplateUpdatable = (data: unknown) =>
-  templatesSchema.partial().parse(data)
+  templatesSchema.partial().omit({ id: true }).strict().parse(data)
+
 
 const templateValidators = () => ({
   parseTemplateId,

@@ -38,6 +38,12 @@ export default (db: Kysely<DB>): SprintsRepository => ({
     return result
   },
   
-  remove: async (sprintId) =>
-    db.deleteFrom('sprints').where('id', '=', sprintId).executeTakeFirst(),
+  remove: async (sprintId) => {
+  const results = await db.deleteFrom('sprints').where('id', '=', sprintId).execute();
+  if (results.length === 0) {
+    throw new Error('Failed to delete sprint');
+  }
+  return results[0];
+}
+
 })

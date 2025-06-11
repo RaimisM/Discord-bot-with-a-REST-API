@@ -76,18 +76,26 @@ describe('sprintManager', () => {
   })
 
   describe('deleteSprints', () => {
-    it('should delete an existing sprint', async () => {
-      const request = createMockExpressRequest({
-        params: { id: '123' },
-      })
-      mockRepo.findById.mockResolvedValue({ id: 123, sprintName: 'Sprint X', topicName: 'Topic Y' })
-      mockRepo.remove.mockResolvedValue({ numDeletedRows: BigInt(1) })
+    describe('deleteSprints', () => {
+  it('should delete an existing sprint and return success message', async () => {
+    const request = createMockExpressRequest({
+      params: { id: '123' },
+    });
 
-      const result = await manager.deleteSprints(request)
+    mockRepo.findById.mockResolvedValue({
+      id: 123,
+      sprintName: 'Sprint X',
+      topicName: 'Topic Y',
+    });
+    mockRepo.remove.mockResolvedValue({ numDeletedRows: BigInt(1) });
 
-      expect(mockRepo.remove).toHaveBeenCalledWith(123)
-      expect(result).toEqual({ numDeletedRows: BigInt(1) })
-    })
+    const result = await manager.deleteSprints(request);
+    expect(mockRepo.findById).toHaveBeenCalledWith(123);
+    expect(mockRepo.remove).toHaveBeenCalledWith(123);
+    expect(result).toEqual({ message: 'Sprint deleted successfully' });
+  });
+});
+
 
     it('should throw NotFound if sprint does not exist', async () => {
       const request = createMockExpressRequest({

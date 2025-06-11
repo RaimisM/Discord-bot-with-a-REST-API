@@ -25,6 +25,9 @@ export const sprintManager = (db: Database) => {
 
       if (parsedQuery.sprintName !== undefined) {
         sprints = sprints.filter((s) => s.sprintName === parsedQuery.sprintName)
+        if (sprints.length === 0) {
+          throw new NotFound(`Sprint with name "${parsedQuery.sprintName}" not found`)
+        }
       }
 
       if (parsedQuery.limit !== undefined) {
@@ -57,23 +60,26 @@ export const sprintManager = (db: Database) => {
 
       const updatedSprint = { ...existing, ...update }
 
-      // Optional: validate after merge
       validator.parseSprint(updatedSprint)
 
-      // Delete old and insert new (simulate update)
       await repo.remove(id)
       return repo.create(updatedSprint)
     },
 
     deleteSprints: async (req: Request) => {
-      const id = validator.parseSprintId(Number(req.params.id))
+  const id = validator.parseSprintId(Number(req.params.id))
 
-      const existing = await repo.findById(id)
-      if (!existing) {
-        throw new NotFound(`Sprint with id "${id}" not found`)
-      }
+  const existing = await repo.findById(id)
+  if (!existing) {
+    throw new NotFound(`Sprint with id "${id}" not found`)
+  }
 
-      return repo.remove(id)
-    },
+  const result = await repo.remove(id)
+  if (result.numDeletedRows === 0n) {
+    throw new Error('Failed to delete sprint')
+  }
+
+  return { message: 'Sprint deleted successfully' }
+},
   }
 }

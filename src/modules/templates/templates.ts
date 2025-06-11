@@ -1,46 +1,42 @@
 import type { Request } from 'express'
 import type { Database } from '@/database'
+import { createTemplatesRepository } from './repository'
+import { templatesSchema, idSchema } from './schema'
 
-export const createTemplate = (db: Database) => ({
-  async getTemplates() {
-  const templates = await db.selectFrom('templates').selectAll().execute()
-  return templates
-  },
+export const createTemplate = (db: Database) => {
+  const repository = createTemplatesRepository(db)
 
-  async postTemplates(req: Request) {
-    const { text } = req.body
+  return {
+    async getTemplates() {
+      return repository.findAll()
+    },
 
-    const [newTemplate] = await db
-      .insertInto('templates')
-      .values({ text })
-      .returning(['id', 'text'])
-      .execute()
+    async postTemplates(req: Request) {
+      const { text } = templatesSchema.pick({ text: true }).parse(req.body)
+      return repository.create({ text })
+    },
 
-    return newTemplate
-  },
+    async patchTemplates(req: Request) {
+      const id = idSchema.parse(req.params.id)
+      const { text } = templatesSchema.partial().parse(req.body)
+      
+      const updated = await repository.update(id, { text })
+      if (!updated) {
+        throw new Error('Template not found')
+      }
+      
+      return updated
+    },
 
-  async patchTemplates(req: Request) {
-    const id = parseInt(req.params.id, 10)
-    const { text } = req.body
-
-    const [updatedTemplate] = await db
-      .updateTable('templates')
-      .set({ text })
-      .where('id', '=', id)
-      .returning(['id', 'text'])
-      .execute()
-
-    return updatedTemplate
-  },
-
-  async deleteTemplates(req: Request) {
-    const id = parseInt(req.params.id, 10)
-
-    await db
-      .deleteFrom('templates')
-      .where('id', '=', id)
-      .execute()
-
-    return { success: true }
-  },
-})
+    async deleteTemplates(req: Request) {
+      const id = idSchema.parse(req.params.id)
+      
+      const deletedCount = await repository.remove(id)
+      if (deletedCount === 0) {
+        throw new Error('Template not found')
+      }
+      
+      return { success: true }
+    },
+  }
+}

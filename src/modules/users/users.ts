@@ -5,9 +5,9 @@ import createController from './controller'
 const usersManager = (db: Database) => {
   const router = Router()
   const controller = createController(db)
-  
+
   router.use('/users', controller)
-  
+
   return router
 }
 

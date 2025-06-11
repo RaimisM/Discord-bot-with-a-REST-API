@@ -11,8 +11,8 @@ const {
 describe('templateValidators', () => {
   describe('parseTemplateId', () => {
     it('should parse a valid id', () => {
-      const result = parseTemplateId({ id: 1 })
-      expect(result).toEqual({ id: 1 })
+      const result = parseTemplateId(1)
+      expect(result).toBe(1)
     })
 
     it('should throw if id is invalid', () => {
@@ -53,11 +53,9 @@ describe('templateValidators', () => {
 
     it('should parse a valid partial template', () => {
       const result = parseTemplateUpdatable({
-        id: 3,
         text: 'Hey {username}, sprint {sprint} just started!',
       })
       expect(result).toEqual({
-        id: 3,
         text: 'Hey {username}, sprint {sprint} just started!',
       })
     })

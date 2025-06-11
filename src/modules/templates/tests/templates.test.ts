@@ -1,10 +1,16 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import type { Request } from 'express'
 import { createTemplate } from '../templates'
-import type { Database } from '@/database'
+
+const mockDb = {
+  selectFrom: vi.fn(),
+  insertInto: vi.fn(),
+  updateTable: vi.fn(),
+  deleteFrom: vi.fn(),
+} as any
 
 const mockQueryBuilder = {
-  selectAll: vi.fn().mockReturnThis(),
+  select: vi.fn().mockReturnThis(),
   execute: vi.fn(),
   values: vi.fn().mockReturnThis(),
   returning: vi.fn().mockReturnThis(),
@@ -12,92 +18,125 @@ const mockQueryBuilder = {
   where: vi.fn().mockReturnThis(),
 }
 
-const mockDb = {
-  selectFrom: vi.fn().mockReturnValue(mockQueryBuilder),
-  insertInto: vi.fn().mockReturnValue(mockQueryBuilder),
-  updateTable: vi.fn().mockReturnValue(mockQueryBuilder),
-  deleteFrom: vi.fn().mockReturnValue(mockQueryBuilder),
-} as unknown as Database
+vi.mock('../repository', async () => {
+  const actual = await vi.importActual<any>('../repository')
+  return {
+    ...actual,
+    createTemplatesRepository: () => ({
+      findAll: () => mockQueryBuilder.execute(),
+      create: (data: any) =>
+        mockDb.insertInto('templates').values(data).returning(['id', 'text']).execute()
+          .then((res: any[]) => res[0]),
+      update: (id: number, data: any) =>
+        mockDb
+          .updateTable('templates')
+          .set(data)
+          .where('id', '=', id)
+          .returning(['id', 'text'])
+          .execute()
+          .then((res: any[]) => res[0]),
+      remove: (id: number) =>
+        mockDb
+          .deleteFrom('templates')
+          .where('id', '=', id)
+          .execute()
+          .then((res: any[]) => Number(res[0]?.numDeletedRows ?? 0)),
+    }),
+  }
+})
 
-describe('createTemplate', () => {
-  const templates = createTemplate(mockDb)
+const templates = createTemplate(mockDb)
 
-  beforeEach(() => {
-    vi.clearAllMocks()
-    Object.values(mockQueryBuilder).forEach(mock => {
-      if (typeof mock === 'function') {
-        mock.mockReturnThis?.()
-      }
-    })
+beforeEach(() => {
+  vi.clearAllMocks()
+
+  mockDb.selectFrom.mockReturnValue(mockQueryBuilder)
+  mockDb.insertInto.mockReturnValue(mockQueryBuilder)
+  mockDb.updateTable.mockReturnValue(mockQueryBuilder)
+  mockDb.deleteFrom.mockReturnValue(mockQueryBuilder)
+})
+
+describe('getTemplates', () => {
+  it('should return all templates', async () => {
+    const mockTemplates = [{ id: 1, text: 'Hello {username}, sprint is {sprint}!' }]
+    mockQueryBuilder.execute.mockResolvedValue(mockTemplates)
+
+    const result = await templates.getTemplates()
+    expect(result).toEqual(mockTemplates)
+  })
+})
+
+describe('postTemplates', () => {
+  it('should create a new template', async () => {
+    const mockReq = {
+      body: { text: 'Hello {username}, your sprint is {sprint}!' },
+    } as Request
+
+    const mockNewTemplate = { id: 1, text: 'Hello {username}, your sprint is {sprint}!' }
+    mockQueryBuilder.execute.mockResolvedValue([mockNewTemplate])
+
+    const result = await templates.postTemplates(mockReq)
+
+    expect(mockDb.insertInto).toHaveBeenCalledWith('templates')
+    expect(mockQueryBuilder.values).toHaveBeenCalledWith({ text: mockNewTemplate.text })
+    expect(mockQueryBuilder.returning).toHaveBeenCalledWith(['id', 'text'])
+    expect(result).toEqual(mockNewTemplate)
+  })
+})
+
+describe('patchTemplates', () => {
+  it('should update an existing template', async () => {
+    const mockReq = {
+      params: { id: '1' },
+      body: { text: 'Updated {username} for sprint {sprint}' },
+    } as unknown as Request
+
+    const mockUpdatedTemplate = { id: 1, text: 'Updated {username} for sprint {sprint}' }
+    mockQueryBuilder.execute.mockResolvedValue([mockUpdatedTemplate])
+
+    const result = await templates.patchTemplates(mockReq)
+
+    expect(mockDb.updateTable).toHaveBeenCalledWith('templates')
+    expect(mockQueryBuilder.set).toHaveBeenCalledWith({ text: mockUpdatedTemplate.text })
+    expect(mockQueryBuilder.where).toHaveBeenCalledWith('id', '=', 1)
+    expect(mockQueryBuilder.returning).toHaveBeenCalledWith(['id', 'text'])
+    expect(result).toEqual(mockUpdatedTemplate)
   })
 
-  describe('getTemplates', () => {
-    it('should return all templates', async () => {
-      const mockTemplates = [
-        { id: 1, text: 'Template 1' },
-        { id: 2, text: 'Template 2' }
-      ]
-      mockQueryBuilder.execute.mockResolvedValue(mockTemplates)
+  it('should throw if template not found', async () => {
+    const mockReq = {
+      params: { id: '1' },
+      body: { text: 'Updated {username} for sprint {sprint}' },
+    } as unknown as Request
 
-      const result = await templates.getTemplates()
+    mockQueryBuilder.execute.mockResolvedValue([])
 
-      expect(mockDb.selectFrom).toHaveBeenCalledWith('templates')
-      expect(mockQueryBuilder.selectAll).toHaveBeenCalled()
-      expect(result).toEqual(mockTemplates)
-    })
+    await expect(templates.patchTemplates(mockReq)).rejects.toThrow('Template not found')
+  })
+})
+
+describe('deleteTemplates', () => {
+  it('should delete a template', async () => {
+    const mockReq = {
+      params: { id: '1' },
+    } as unknown as Request
+
+    mockQueryBuilder.execute.mockResolvedValue([{ numDeletedRows: 1 }])
+
+    const result = await templates.deleteTemplates(mockReq)
+
+    expect(mockDb.deleteFrom).toHaveBeenCalledWith('templates')
+    expect(mockQueryBuilder.where).toHaveBeenCalledWith('id', '=', 1)
+    expect(result).toEqual({ success: true })
   })
 
-  describe('postTemplates', () => {
-    it('should create a new template', async () => {
-      const mockReq = {
-        body: { text: 'New template' }
-      } as Request
+  it('should throw if template not found', async () => {
+    const mockReq = {
+      params: { id: '1' },
+    } as unknown as Request
 
-      const mockNewTemplate = { id: 1, text: 'New template' }
-      mockQueryBuilder.execute.mockResolvedValue([mockNewTemplate])
+    mockQueryBuilder.execute.mockResolvedValue([{ numDeletedRows: 0 }])
 
-      const result = await templates.postTemplates(mockReq)
-
-      expect(mockDb.insertInto).toHaveBeenCalledWith('templates')
-      expect(mockQueryBuilder.values).toHaveBeenCalledWith({ text: 'New template' })
-      expect(mockQueryBuilder.returning).toHaveBeenCalledWith(['id', 'text'])
-      expect(result).toEqual(mockNewTemplate)
-    })
-  })
-
-  describe('patchTemplates', () => {
-    it('should update an existing template', async () => {
-      const mockReq = {
-        params: { id: '1' },
-        body: { text: 'Updated template' }
-      } as unknown as Request
-
-      const mockUpdatedTemplate = { id: 1, text: 'Updated template' }
-      mockQueryBuilder.execute.mockResolvedValue([mockUpdatedTemplate])
-
-      const result = await templates.patchTemplates(mockReq)
-
-      expect(mockDb.updateTable).toHaveBeenCalledWith('templates')
-      expect(mockQueryBuilder.set).toHaveBeenCalledWith({ text: 'Updated template' })
-      expect(mockQueryBuilder.where).toHaveBeenCalledWith('id', '=', 1)
-      expect(mockQueryBuilder.returning).toHaveBeenCalledWith(['id', 'text'])
-      expect(result).toEqual(mockUpdatedTemplate)
-    })
-  })
-
-  describe('deleteTemplates', () => {
-    it('should delete a template', async () => {
-      const mockReq = {
-        params: { id: '1' }
-      } as unknown as Request
-
-      mockQueryBuilder.execute.mockResolvedValue(undefined)
-
-      const result = await templates.deleteTemplates(mockReq)
-
-      expect(mockDb.deleteFrom).toHaveBeenCalledWith('templates')
-      expect(mockQueryBuilder.where).toHaveBeenCalledWith('id', '=', 1)
-      expect(result).toEqual({ success: true })
-    })
+    await expect(templates.deleteTemplates(mockReq)).rejects.toThrow('Template not found')
   })
 })
