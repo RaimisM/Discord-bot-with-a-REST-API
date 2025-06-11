@@ -1,7 +1,7 @@
 import { Request } from 'express'
 import createMessagesRepository from './repository'
 import createSprintsRepository from '@/modules/sprints/repository'
-import createUsersManager from '@/modules/users/users'
+import createUsersRepository from '@/modules/users/repository'
 import loadUsersData from '@/modules/users/loadUsersData'
 import BadRequest from '@/utils/errors/BadRequest'
 import NotFound from '@/utils/errors/NotFound'
@@ -13,7 +13,7 @@ import generateMessage from './generator'
 export function createMessageManager(db: any, discordBot: any) {
   const messagesRepository = createMessagesRepository(db)
   const sprintsRepository = createSprintsRepository(db)
-  const usersManager = createUsersManager(db)
+  const usersRepository = createUsersRepository(db)
 
   return {
     async getMessages(req: Request) {
@@ -38,7 +38,7 @@ export function createMessageManager(db: any, discordBot: any) {
         throw new NotFound('Sprint not found')
       }
 
-      const user = await usersManager.getUser(body.username)
+      const user = await usersRepository.findByUsername(body.username)
       if (!user) {
         throw new BadRequest('User not found')
       }

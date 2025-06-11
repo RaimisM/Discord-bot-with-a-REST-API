@@ -17,12 +17,13 @@ const mockMessagesRepository = {
 const mockSprintsRepository = {
   findByName: vi.fn(),
 }
-const mockUsersManager = {
-  getUser: vi.fn(),
+const mockUsersRepository = {
+  findByUsername: vi.fn(),
 }
 const mockDiscordBot = {
   sendMessage: vi.fn(),
 }
+
 vi.mock('../validator', () => ({
   validGetRequest: vi.fn(),
   validPostRequest: vi.fn(),
@@ -33,8 +34,8 @@ vi.mock('../repository', () => ({
 vi.mock('@/modules/users/loadUsersData', () => ({
   default: vi.fn(),
 }))
-vi.mock('@/modules/users/users', () => ({
-  default: vi.fn(() => mockUsersManager),
+vi.mock('@/modules/users/repository', () => ({
+  default: vi.fn(() => mockUsersRepository),
 }))
 vi.mock('@/modules/sprints/repository', () => ({
   default: vi.fn(() => mockSprintsRepository),
@@ -70,7 +71,7 @@ describe('messageManager', () => {
           sprintTopic: 'Productivity',
           templateId: 1,
           templateText: 'Template {username}',
-          username: 'Alice',
+          username: 'Testukas',
         },
       ]
 
@@ -101,7 +102,7 @@ describe('messageManager', () => {
   })
 
   describe('createMessage', () => {
-    const validRequestBody = { username: 'Alice', sprintName: 'Sprint 1' }
+    const validRequestBody = { username: 'Testukas', sprintName: 'Sprint 1' }
     const mockSprint = {
       id: 1,
       sprintName: 'Sprint 1',
@@ -109,14 +110,14 @@ describe('messageManager', () => {
     }
     const mockUser = {
       id: '123',
-      username: 'Alice'
+      username: 'Testukas'
     }
     const mockTemplate = {
       id: 1,
       text: '{username} completed {sprintName}'
     }
     const mockImage = 'https://example.com/img.png'
-    const mockGeneratedContent = 'Alice completed Sprint 1'
+    const mockGeneratedContent = 'Testukas completed Sprint 1'
     const mockDiscordResponse = {
       content: mockGeneratedContent,
       createdAt: '2024-01-01T00:00:00Z',
@@ -125,7 +126,7 @@ describe('messageManager', () => {
     beforeEach(() => {
       ;(validators.validPostRequest as Mock).mockReturnValue(validRequestBody)
       mockSprintsRepository.findByName.mockResolvedValue(mockSprint)
-      mockUsersManager.getUser.mockResolvedValue(mockUser)
+      mockUsersRepository.findByUsername.mockResolvedValue(mockUser)
       ;(getRandomTemplate as Mock).mockResolvedValue(mockTemplate)
       ;(getRandomImage as Mock).mockResolvedValue(mockImage)
       ;(generateMessage as Mock).mockResolvedValue(mockGeneratedContent)
@@ -152,7 +153,7 @@ describe('messageManager', () => {
 
       expect(validators.validPostRequest).toHaveBeenCalledWith(req.body)
       expect(mockSprintsRepository.findByName).toHaveBeenCalledWith(validRequestBody.sprintName)
-      expect(mockUsersManager.getUser).toHaveBeenCalledWith(validRequestBody.username)
+      expect(mockUsersRepository.findByUsername).toHaveBeenCalledWith(validRequestBody.username)
       expect(getRandomTemplate).toHaveBeenCalledWith(mockDb)
       expect(getRandomImage).toHaveBeenCalledWith(mockDb)
       expect(generateMessage).toHaveBeenCalledWith({
@@ -166,7 +167,7 @@ describe('messageManager', () => {
       })
       expect(mockMessagesRepository.insertMessages).toHaveBeenCalledWith([{
         gifUrl: mockImage,
-        originalMessage: mockGeneratedContent,
+        originalMessage: mockDiscordResponse.content,
         sprintId: mockSprint.id,
         sprintName: mockSprint.sprintName,
         sprintTopic: mockSprint.topicName || '',
@@ -188,7 +189,7 @@ describe('messageManager', () => {
     })
 
     it('should throw BadRequest when validation fails', async () => {
-      const req = { body: { username: 'Alice' } }
+      const req = { body: { username: 'Testukas' } }
       const validationError = new BadRequest('Missing sprintName')
 
       ;(validators.validPostRequest as Mock).mockImplementation(() => {
@@ -205,13 +206,13 @@ describe('messageManager', () => {
       mockSprintsRepository.findByName.mockResolvedValue(null)
 
       await expect(manager.createMessage(req as any)).rejects.toThrow(NotFound)
-      expect(mockUsersManager.getUser).not.toHaveBeenCalled()
+      expect(mockUsersRepository.findByUsername).not.toHaveBeenCalled()
     })
 
     it('should throw BadRequest when user does not exist', async () => {
       const req = { body: validRequestBody }
 
-      mockUsersManager.getUser.mockResolvedValue(null)
+      mockUsersRepository.findByUsername.mockResolvedValue(null)
 
       await expect(manager.createMessage(req as any)).rejects.toThrow(BadRequest)
       expect(getRandomTemplate).not.toHaveBeenCalled()
