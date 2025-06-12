@@ -21,8 +21,11 @@ export interface DiscordServiceInterface {
 
 class DiscordService implements DiscordServiceInterface {
   private client: Client
+
   private channel?: TextChannel
+
   private isShutdown = false
+
   private botReadyPromise: Promise<void>
 
   constructor(discordToken: string, discordChannel: string) {
@@ -43,7 +46,8 @@ class DiscordService implements DiscordServiceInterface {
           if (!botChannel?.isTextBased?.()) {
             const errorMessage = 'Channel is not text-based or not found'
             Logger.error(errorMessage)
-            return reject(new NotFound(errorMessage))
+            reject(new NotFound(errorMessage))
+            return
           }
 
           this.channel = botChannel as TextChannel
@@ -59,11 +63,15 @@ class DiscordService implements DiscordServiceInterface {
       })
     })
 
-    process.once('SIGINT', () => void this.shutdown())
-    process.once('SIGTERM', () => void this.shutdown())
+    process.once('SIGINT', () => {
+      this.shutdown()
+    })
+    process.once('SIGTERM', () => {
+      this.shutdown()
+    })
   }
 
-  private checkChannel(): asserts this is { channel: TextChannel } {
+  private checkChannel(): void {
     if (!this.channel) {
       throw new NotFound('Channel is not set up correctly.')
     }
@@ -77,7 +85,7 @@ class DiscordService implements DiscordServiceInterface {
       throw new Error('Bot has been shut down.')
     }
 
-    return this.channel.send(message)
+    return this.channel!.send(message)
   }
 
   public async getChannelUsers(): Promise<DiscordUser[]> {
@@ -88,10 +96,10 @@ class DiscordService implements DiscordServiceInterface {
       throw new Error('Bot has been shut down.')
     }
 
-    const guild = this.channel.guild
+    const { guild } = this.channel!
     await guild.members.fetch()
 
-    return guild.members.cache.map((member) => ({
+    return guild.members.cache.map((member: any) => ({
       id: member.user.id,
       username: member.user.username,
     }))

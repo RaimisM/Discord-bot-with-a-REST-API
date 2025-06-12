@@ -5,7 +5,7 @@
     "index.ts",
     "tests/utils/fixtures.ts",
     "src/modules/messages/schema.ts"
-  ],
+, "src/database/migrations/20250529150500-createDiscordBotDatabase.ts"  ],
 
   "compilerOptions": {
     "baseUrl": ".",

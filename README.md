@@ -20,8 +20,7 @@ Discord-Bot-with-a-REST-API
 │   │   │   ├── bin.ts
 │   │   │   └── index.ts
 │   │   └── migrations
-│   │       └── createDiscordBotDatabase.ts
-
+│   │       └── 20250529150500-createDiscordBotDatabase.ts
 │   ├── middleware
 │   │   └── jsonErrors.ts
 │   ├── modules
