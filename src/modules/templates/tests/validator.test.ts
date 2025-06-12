@@ -16,7 +16,7 @@ describe('templateValidators', () => {
     })
 
     it('should throw if id is invalid', () => {
-    expect(() => parseTemplateId({ id: 'abc' })).toThrow()
+      expect(() => parseTemplateId({ id: 'abc' })).toThrow()
     })
   })
 

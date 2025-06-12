@@ -50,7 +50,7 @@ describe('Templates Controller', () => {
     expect(response.body.text).toBe(newTemplate.text)
 
     const dbTemplates = await db.selectFrom('templates').selectAll().execute()
-    expect(dbTemplates.some(t => t.text === newTemplate.text)).toBe(true)
+    expect(dbTemplates.some((t) => t.text === newTemplate.text)).toBe(true)
   })
 
   it('POST /templates should return 400 for invalid template (missing placeholders)', async () => {

@@ -7,7 +7,12 @@ const isTest = NODE_ENV === 'test'
 
 function getErrorStatusCode(error: unknown): number {
   if (error instanceof ZodError) return StatusCodes.BAD_REQUEST
-  if (typeof error === 'object' && error && 'status' in error && typeof error.status === 'number') {
+  if (
+    typeof error === 'object' &&
+    error &&
+    'status' in error &&
+    typeof error.status === 'number'
+  ) {
     return error.status
   }
   return StatusCodes.INTERNAL_SERVER_ERROR
@@ -34,7 +39,10 @@ const jsonErrors: ErrorRequestHandler = (error, _req, res, _next) => {
   return res.status(statusCode).json({
     error: {
       message:
-        typeof error === 'object' && error && 'message' in error && typeof error.message === 'string'
+        typeof error === 'object' &&
+        error &&
+        'message' in error &&
+        typeof error.message === 'string'
           ? error.message
           : 'Internal server error',
     },

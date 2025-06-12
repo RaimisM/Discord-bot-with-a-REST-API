@@ -10,29 +10,36 @@ export const createTemplatesRepository = (db: Kysely<DB>) => {
     db.selectFrom('templates').selectAll().execute()
 
   const findById = (id: number): Promise<Template | undefined> =>
-    db.selectFrom('templates')
+    db
+      .selectFrom('templates')
       .selectAll()
       .where('id', '=', id)
       .executeTakeFirst()
 
   const create = (data: NewTemplate): Promise<Template> =>
-    db.insertInto('templates')
+    db
+      .insertInto('templates')
       .values(data)
       .returningAll()
       .executeTakeFirstOrThrow()
 
-  const update = (id: number, data: TemplateUpdate): Promise<Template | undefined> =>
-    db.updateTable('templates')
+  const update = (
+    id: number,
+    data: TemplateUpdate
+  ): Promise<Template | undefined> =>
+    db
+      .updateTable('templates')
       .set(data)
       .where('id', '=', id)
       .returningAll()
       .executeTakeFirst()
 
   const remove = (id: number): Promise<number> =>
-    db.deleteFrom('templates')
+    db
+      .deleteFrom('templates')
       .where('id', '=', id)
       .execute()
-      .then(result => Number(result[0]?.numDeletedRows ?? 0))
+      .then((result) => Number(result[0]?.numDeletedRows ?? 0))
 
   return {
     findAll,

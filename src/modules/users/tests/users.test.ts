@@ -28,10 +28,14 @@ beforeEach(async () => {
 
 describe('/users route', () => {
   it('should add a new user', async () => {
-    const res = await request(app).post('/users').send({ id: '10', username: 'Alice' })
+    const res = await request(app)
+      .post('/users')
+      .send({ id: '10', username: 'Alice' })
 
     expect([200, 201]).toContain(res.status)
-    expect(res.body).toEqual(expect.objectContaining({ id: '10', username: 'Alice' }))
+    expect(res.body).toEqual(
+      expect.objectContaining({ id: '10', username: 'Alice' })
+    )
   })
 
   it('should return all users', async () => {

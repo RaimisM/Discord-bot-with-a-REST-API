@@ -20,7 +20,7 @@ beforeAll(async () => {
 describe('Users Repository', () => {
   test('should get all users', async () => {
     const users = await usersRepository.findAll()
-    
+
     expect(users).toHaveLength(3)
     expect(users).toEqual(
       expect.arrayContaining([
@@ -33,7 +33,7 @@ describe('Users Repository', () => {
 
   test('should find user by username', async () => {
     const user = await usersRepository.findByUsername('User1')
-    
+
     expect(user).toBeDefined()
     expect(user).toEqual(
       expect.objectContaining({
@@ -45,7 +45,7 @@ describe('Users Repository', () => {
 
   test('should find user by id', async () => {
     const user = await usersRepository.findById('456')
-    
+
     expect(user).toBeDefined()
     expect(user).toEqual(
       expect.objectContaining({
@@ -57,13 +57,13 @@ describe('Users Repository', () => {
 
   test('should return undefined if user is not found by username', async () => {
     const user = await usersRepository.findByUsername('NonExistentUser')
-    
+
     expect(user).toBeUndefined()
   })
 
   test('should return undefined if user is not found by id', async () => {
     const user = await usersRepository.findById('non-existent-id')
-    
+
     expect(user).toBeUndefined()
   })
 
@@ -72,11 +72,11 @@ describe('Users Repository', () => {
       id: '999',
       username: 'NewUser',
     }
-    
+
     const createdUser = await usersRepository.create(newUser)
-    
+
     expect(createdUser).toEqual(expect.objectContaining(newUser))
-    
+
     const foundUser = await usersRepository.findById('999')
     expect(foundUser).toEqual(expect.objectContaining(newUser))
   })
@@ -85,16 +85,16 @@ describe('Users Repository', () => {
     const updatedData = {
       username: 'UpdatedUser1',
     }
-    
+
     const updatedUser = await usersRepository.update('123', updatedData)
-    
+
     expect(updatedUser).toEqual(
       expect.objectContaining({
         id: '123',
         username: 'UpdatedUser1',
       })
     )
-    
+
     const foundUser = await usersRepository.findById('123')
     expect(foundUser?.username).toBe('UpdatedUser1')
   })
@@ -102,9 +102,9 @@ describe('Users Repository', () => {
   test('should delete user', async () => {
     const userBeforeDelete = await usersRepository.findById('789')
     expect(userBeforeDelete).toBeDefined()
-    
+
     await usersRepository.delete('789')
-    
+
     const userAfterDelete = await usersRepository.findById('789')
     expect(userAfterDelete).toBeUndefined()
   })
@@ -114,16 +114,16 @@ describe('Users Repository', () => {
       id: '888',
       username: 'User2',
     }
-    
+
     await expect(usersRepository.create(duplicateUser)).rejects.toThrow()
   })
 
   test('should return empty array when no users exist', async () => {
     await cleanDatabase(db)
-    
+
     const users = await usersRepository.findAll()
     expect(users).toEqual([])
-    
+
     await createUsers([
       { id: '123', username: 'User1' },
       { id: '456', username: 'User2' },

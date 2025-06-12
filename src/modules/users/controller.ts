@@ -11,26 +11,31 @@ export default (db: Database) => {
   router
     .route('/')
     .get(jsonRoute(repo.findAll))
-    .post(jsonRoute(async (req) => {
-      const user = await repo.create(req.body)
-      return {
-        statusCode: StatusCodes.CREATED,
-        body: user,
-      }
-    }))
+    .post(
+      jsonRoute(async (req) => {
+        const user = await repo.create(req.body)
+        return {
+          statusCode: StatusCodes.CREATED,
+          body: user,
+        }
+      })
+    )
 
   router
     .route('/:id')
     .get(jsonRoute(async (req) => repo.findById(req.params.id)))
     .put(jsonRoute(async (req) => repo.update(req.params.id, req.body)))
-    .delete(jsonRoute(async (req) => {
-      await repo.delete(req.params.id)
-      return { success: true }
-    }))
+    .delete(
+      jsonRoute(async (req) => {
+        await repo.delete(req.params.id)
+        return { success: true }
+      })
+    )
 
-  router.get('/username/:username', jsonRoute(async (req) =>
-    repo.findByUsername(req.params.username)
-  ))
+  router.get(
+    '/username/:username',
+    jsonRoute(async (req) => repo.findByUsername(req.params.username))
+  )
 
   return router
 }

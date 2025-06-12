@@ -13,14 +13,15 @@ const mockRepo = {
   remove: vi.fn(),
 }
 
-const createMockDb = (): Database => ({ kysely: {} } as any)
+const createMockDb = (): Database => ({ kysely: {} }) as any
 
-const createMockExpressRequest = (data: Partial<Request> = {}): Request => ({
-  body: {},
-  params: {},
-  query: {},
-  ...data,
-} as Request)
+const createMockExpressRequest = (data: Partial<Request> = {}): Request =>
+  ({
+    body: {},
+    params: {},
+    query: {},
+    ...data,
+  }) as Request
 
 vi.mock('../repository', () => ({
   default: () => mockRepo,
@@ -45,13 +46,21 @@ describe('sprintManager', () => {
 
   describe('postSprints', () => {
     it('should create a new sprint when valid and not duplicate', async () => {
-      const requestBody = { sprintName: 'Sprint A', topicName: 'Topic 1', id: 1 }
+      const requestBody = {
+        sprintName: 'Sprint A',
+        topicName: 'Topic 1',
+        id: 1,
+      }
       const request = createMockExpressRequest({
         body: requestBody,
       })
 
       mockRepo.findByName.mockResolvedValue(undefined)
-      mockRepo.create.mockResolvedValue({ id: 1, sprintName: 'Sprint A', topicName: 'Topic 1' })
+      mockRepo.create.mockResolvedValue({
+        id: 1,
+        sprintName: 'Sprint A',
+        topicName: 'Topic 1',
+      })
 
       const result = await manager.postSprints(request)
 
@@ -60,16 +69,28 @@ describe('sprintManager', () => {
         topicName: 'Topic 1',
         id: 1,
       })
-      expect(result).toEqual({ id: 1, sprintName: 'Sprint A', topicName: 'Topic 1' })
+      expect(result).toEqual({
+        id: 1,
+        sprintName: 'Sprint A',
+        topicName: 'Topic 1',
+      })
     })
 
     it('should throw BadRequest if sprint name already exists', async () => {
-      const requestBody = { sprintName: 'Sprint A', topicName: 'Topic 1', id: 1 }
+      const requestBody = {
+        sprintName: 'Sprint A',
+        topicName: 'Topic 1',
+        id: 1,
+      }
       const request = createMockExpressRequest({
         body: requestBody,
       })
 
-      mockRepo.findByName.mockResolvedValue({ id: 1, sprintName: 'Sprint A', topicName: 'Topic 1' })
+      mockRepo.findByName.mockResolvedValue({
+        id: 1,
+        sprintName: 'Sprint A',
+        topicName: 'Topic 1',
+      })
 
       await expect(manager.postSprints(request)).rejects.toThrow(BadRequest)
     })
@@ -77,25 +98,24 @@ describe('sprintManager', () => {
 
   describe('deleteSprints', () => {
     describe('deleteSprints', () => {
-  it('should delete an existing sprint and return success message', async () => {
-    const request = createMockExpressRequest({
-      params: { id: '123' },
-    });
+      it('should delete an existing sprint and return success message', async () => {
+        const request = createMockExpressRequest({
+          params: { id: '123' },
+        })
 
-    mockRepo.findById.mockResolvedValue({
-      id: 123,
-      sprintName: 'Sprint X',
-      topicName: 'Topic Y',
-    });
-    mockRepo.remove.mockResolvedValue({ numDeletedRows: BigInt(1) });
+        mockRepo.findById.mockResolvedValue({
+          id: 123,
+          sprintName: 'Sprint X',
+          topicName: 'Topic Y',
+        })
+        mockRepo.remove.mockResolvedValue({ numDeletedRows: BigInt(1) })
 
-    const result = await manager.deleteSprints(request);
-    expect(mockRepo.findById).toHaveBeenCalledWith(123);
-    expect(mockRepo.remove).toHaveBeenCalledWith(123);
-    expect(result).toEqual({ message: 'Sprint deleted successfully' });
-  });
-});
-
+        const result = await manager.deleteSprints(request)
+        expect(mockRepo.findById).toHaveBeenCalledWith(123)
+        expect(mockRepo.remove).toHaveBeenCalledWith(123)
+        expect(result).toEqual({ message: 'Sprint deleted successfully' })
+      })
+    })
 
     it('should throw NotFound if sprint does not exist', async () => {
       const request = createMockExpressRequest({

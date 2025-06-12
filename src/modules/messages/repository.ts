@@ -31,7 +31,6 @@ export default function createRepository(db: Kysely<DB>): MessageRepository {
     },
 
     async insertMessages(messages) {
-
       const inserted = await db
         .insertInto('messages')
         .values(messages)

@@ -22,10 +22,10 @@ export default async function saveImages(
   }
 
   try {
-    const imagesToInsert = images.map(image => ({
-      url: image.url
+    const imagesToInsert = images.map((image) => ({
+      url: image.url,
     }))
-    
+
     await repository.insertImages(imagesToInsert)
     return true
   } catch (error) {

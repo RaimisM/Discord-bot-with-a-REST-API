@@ -43,7 +43,7 @@ describe('saveImages', () => {
     expect(mockInsertImages).toHaveBeenCalledTimes(1)
     expect(mockInsertImages).toHaveBeenCalledWith([
       { url: 'image1.jpg' },
-      { url: 'image2.jpg' }
+      { url: 'image2.jpg' },
     ])
     expect(result).toBe(true)
   })

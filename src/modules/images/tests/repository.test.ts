@@ -29,11 +29,7 @@ beforeEach(async () => {
 
 describe('ImagesRepository', () => {
   it('should retrieve all images', async () => {
-    await insertImages([
-      { url: 'url1' },
-      { url: 'url2' },
-      { url: 'url3' },
-    ])
+    await insertImages([{ url: 'url1' }, { url: 'url2' }, { url: 'url3' }])
 
     const images = await repository.getImages()
     expect(images).toHaveLength(3)
@@ -47,16 +43,9 @@ describe('ImagesRepository', () => {
   })
 
   it('should insert new images', async () => {
-    await insertImages([
-      { url: 'url1' },
-      { url: 'url2' },
-      { url: 'url3' },
-    ])
+    await insertImages([{ url: 'url1' }, { url: 'url2' }, { url: 'url3' }])
 
-    const newImages = [
-      { url: 'url4' },
-      { url: 'url5' },
-    ]
+    const newImages = [{ url: 'url4' }, { url: 'url5' }]
     const insertedImages = await repository.insertImages(newImages)
 
     expect(insertedImages).toHaveLength(2)
@@ -72,10 +61,7 @@ describe('ImagesRepository', () => {
   })
 
   it('should delete all images', async () => {
-    await insertImages([
-      { url: 'url1' },
-      { url: 'url2' },
-    ])
+    await insertImages([{ url: 'url1' }, { url: 'url2' }])
 
     const result = await repository.deleteImages()
     expect(result).toBeDefined()

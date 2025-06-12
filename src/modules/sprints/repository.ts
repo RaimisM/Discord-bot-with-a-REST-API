@@ -13,37 +13,42 @@ export interface SprintsRepository {
 }
 
 export default (db: Kysely<DB>): SprintsRepository => ({
-  findAll: async () =>
-    db.selectFrom('sprints').selectAll().execute(),
-  
+  findAll: async () => db.selectFrom('sprints').selectAll().execute(),
+
   findByName: async (sprintName) =>
     db
       .selectFrom('sprints')
       .selectAll()
       .where('sprintName', '=', sprintName)
       .executeTakeFirst(),
-  
+
   findById: async (id) =>
     db
       .selectFrom('sprints')
       .selectAll()
       .where('id', '=', id)
       .executeTakeFirst(),
-  
+
   create: async (sprint) => {
-    const result = await db.insertInto('sprints').values(sprint).returningAll().executeTakeFirst()
+    const result = await db
+      .insertInto('sprints')
+      .values(sprint)
+      .returningAll()
+      .executeTakeFirst()
     if (!result) {
       throw new Error('Failed to create sprint')
     }
     return result
   },
-  
-  remove: async (sprintId) => {
-  const results = await db.deleteFrom('sprints').where('id', '=', sprintId).execute();
-  if (results.length === 0) {
-    throw new Error('Failed to delete sprint');
-  }
-  return results[0];
-}
 
+  remove: async (sprintId) => {
+    const results = await db
+      .deleteFrom('sprints')
+      .where('id', '=', sprintId)
+      .execute()
+    if (results.length === 0) {
+      throw new Error('Failed to delete sprint')
+    }
+    return results[0]
+  },
 })

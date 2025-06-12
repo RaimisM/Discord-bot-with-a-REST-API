@@ -15,7 +15,7 @@ describe('getRandomImageUrl', () => {
 
     const result = getRandomImageUrl(images)
 
-    const urls = images.map(img => img.url)
+    const urls = images.map((img) => img.url)
     expect(urls).toContain(result)
   })
 })

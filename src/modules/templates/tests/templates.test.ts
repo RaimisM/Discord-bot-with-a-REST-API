@@ -25,7 +25,11 @@ vi.mock('../repository', async () => {
     createTemplatesRepository: () => ({
       findAll: () => mockQueryBuilder.execute(),
       create: (data: any) =>
-        mockDb.insertInto('templates').values(data).returning(['id', 'text']).execute()
+        mockDb
+          .insertInto('templates')
+          .values(data)
+          .returning(['id', 'text'])
+          .execute()
           .then((res: any[]) => res[0]),
       update: (id: number, data: any) =>
         mockDb
@@ -58,7 +62,9 @@ beforeEach(() => {
 
 describe('getTemplates', () => {
   it('should return all templates', async () => {
-    const mockTemplates = [{ id: 1, text: 'Hello {username}, sprint is {sprint}!' }]
+    const mockTemplates = [
+      { id: 1, text: 'Hello {username}, sprint is {sprint}!' },
+    ]
     mockQueryBuilder.execute.mockResolvedValue(mockTemplates)
 
     const result = await templates.getTemplates()
@@ -72,13 +78,18 @@ describe('postTemplates', () => {
       body: { text: 'Hello {username}, your sprint is {sprint}!' },
     } as Request
 
-    const mockNewTemplate = { id: 1, text: 'Hello {username}, your sprint is {sprint}!' }
+    const mockNewTemplate = {
+      id: 1,
+      text: 'Hello {username}, your sprint is {sprint}!',
+    }
     mockQueryBuilder.execute.mockResolvedValue([mockNewTemplate])
 
     const result = await templates.postTemplates(mockReq)
 
     expect(mockDb.insertInto).toHaveBeenCalledWith('templates')
-    expect(mockQueryBuilder.values).toHaveBeenCalledWith({ text: mockNewTemplate.text })
+    expect(mockQueryBuilder.values).toHaveBeenCalledWith({
+      text: mockNewTemplate.text,
+    })
     expect(mockQueryBuilder.returning).toHaveBeenCalledWith(['id', 'text'])
     expect(result).toEqual(mockNewTemplate)
   })
@@ -91,13 +102,18 @@ describe('patchTemplates', () => {
       body: { text: 'Updated {username} for sprint {sprint}' },
     } as unknown as Request
 
-    const mockUpdatedTemplate = { id: 1, text: 'Updated {username} for sprint {sprint}' }
+    const mockUpdatedTemplate = {
+      id: 1,
+      text: 'Updated {username} for sprint {sprint}',
+    }
     mockQueryBuilder.execute.mockResolvedValue([mockUpdatedTemplate])
 
     const result = await templates.patchTemplates(mockReq)
 
     expect(mockDb.updateTable).toHaveBeenCalledWith('templates')
-    expect(mockQueryBuilder.set).toHaveBeenCalledWith({ text: mockUpdatedTemplate.text })
+    expect(mockQueryBuilder.set).toHaveBeenCalledWith({
+      text: mockUpdatedTemplate.text,
+    })
     expect(mockQueryBuilder.where).toHaveBeenCalledWith('id', '=', 1)
     expect(mockQueryBuilder.returning).toHaveBeenCalledWith(['id', 'text'])
     expect(result).toEqual(mockUpdatedTemplate)
@@ -111,7 +127,9 @@ describe('patchTemplates', () => {
 
     mockQueryBuilder.execute.mockResolvedValue([])
 
-    await expect(templates.patchTemplates(mockReq)).rejects.toThrow('Template not found')
+    await expect(templates.patchTemplates(mockReq)).rejects.toThrow(
+      'Template not found'
+    )
   })
 })
 
@@ -137,6 +155,8 @@ describe('deleteTemplates', () => {
 
     mockQueryBuilder.execute.mockResolvedValue([{ numDeletedRows: 0 }])
 
-    await expect(templates.deleteTemplates(mockReq)).rejects.toThrow('Template not found')
+    await expect(templates.deleteTemplates(mockReq)).rejects.toThrow(
+      'Template not found'
+    )
   })
 })

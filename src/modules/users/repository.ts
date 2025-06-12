@@ -15,15 +15,10 @@ export interface UsersRepository {
 }
 
 export default (db: Database): UsersRepository => ({
-  findAll: async () => 
-    db.selectFrom('users').selectAll().execute(),
+  findAll: async () => db.selectFrom('users').selectAll().execute(),
 
   findById: async (id: string) =>
-    db
-      .selectFrom('users')
-      .selectAll()
-      .where('id', '=', id)
-      .executeTakeFirst(),
+    db.selectFrom('users').selectAll().where('id', '=', id).executeTakeFirst(),
 
   findByUsername: async (username: string) =>
     db

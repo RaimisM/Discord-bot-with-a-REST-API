@@ -23,7 +23,9 @@ export async function up(db: Kysely<any>): Promise<void> {
   await db.schema
     .createTable('users')
     .ifNotExists()
-    .addColumn('id', 'varchar(255)', (col) => col.primaryKey().notNull().unique())
+    .addColumn('id', 'varchar(255)', (col) =>
+      col.primaryKey().notNull().unique()
+    )
     .addColumn('username', 'varchar(100)', (col) => col.notNull().unique())
     .execute()
 
@@ -39,7 +41,9 @@ export async function up(db: Kysely<any>): Promise<void> {
   await db.schema
     .createTable('messages')
     .ifNotExists()
-    .addColumn('id', 'integer', (col) => col.primaryKey().autoIncrement().notNull())
+    .addColumn('id', 'integer', (col) =>
+      col.primaryKey().autoIncrement().notNull()
+    )
     .addColumn('username', 'varchar(100)', (col) => col.notNull())
     .addColumn('sprint_name', 'varchar(50)', (col) => col.notNull())
     .addColumn('sprint_id', 'integer', (col) =>

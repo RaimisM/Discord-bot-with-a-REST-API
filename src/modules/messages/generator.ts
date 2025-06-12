@@ -7,7 +7,9 @@ export interface GenerateMessageOptions {
   sprintName: string
 }
 
-export default async function generateMessage(options: GenerateMessageOptions): Promise<string> {
+export default async function generateMessage(
+  options: GenerateMessageOptions
+): Promise<string> {
   const mentionUser = userMention(options.user.id)
 
   const formedMessage = generateTemplate(options.template, {
