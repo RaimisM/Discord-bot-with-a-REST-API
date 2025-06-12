@@ -4,13 +4,13 @@ import type { Image } from '../getImages'
 
 type Database = any
 
-const mockInsertImage = vi.fn()
-const mockDeleteImage = vi.fn()
+const mockInsertImages = vi.fn()
+const mockDeleteImages = vi.fn()
 
 vi.mock('../repository', () => ({
   default: vi.fn(() => ({
-    insertImage: mockInsertImage,
-    deleteImage: mockDeleteImage,
+    insertImages: mockInsertImages,
+    deleteImages: mockDeleteImages,
   })),
 }))
 
@@ -27,8 +27,8 @@ describe('saveImages', () => {
     await expect(saveImages(db, images)).rejects.toThrow(
       'There are no images to save'
     )
-    expect(mockInsertImage).not.toHaveBeenCalled()
-    expect(mockDeleteImage).toHaveBeenCalledTimes(1)
+    expect(mockInsertImages).not.toHaveBeenCalled()
+    expect(mockDeleteImages).toHaveBeenCalledTimes(1)
   })
 
   test('should insert and delete images correctly', async () => {
@@ -39,33 +39,36 @@ describe('saveImages', () => {
 
     const result = await saveImages(db, images)
 
-    expect(mockDeleteImage).toHaveBeenCalledTimes(1)
-    expect(mockInsertImage).toHaveBeenCalledTimes(1)
-    expect(mockInsertImage).toHaveBeenCalledWith(images)
+    expect(mockDeleteImages).toHaveBeenCalledTimes(1)
+    expect(mockInsertImages).toHaveBeenCalledTimes(1)
+    expect(mockInsertImages).toHaveBeenCalledWith([
+      { url: 'image1.jpg' },
+      { url: 'image2.jpg' }
+    ])
     expect(result).toBe(true)
   })
 
-  test('should throw if deleteImage fails', async () => {
-    mockDeleteImage.mockImplementationOnce(() => {
+  test('should throw if deleteImages fails', async () => {
+    mockDeleteImages.mockImplementationOnce(() => {
       throw new Error('DB error on delete')
     })
 
     const images: Image[] = [{ id: '1', url: 'image1.jpg', title: 'Image 1' }]
 
     await expect(saveImages(db, images)).rejects.toThrow('DB error on delete')
-    expect(mockInsertImage).not.toHaveBeenCalled()
-    expect(mockDeleteImage).toHaveBeenCalledTimes(1)
+    expect(mockInsertImages).not.toHaveBeenCalled()
+    expect(mockDeleteImages).toHaveBeenCalledTimes(1)
   })
 
-  test('should throw if insertImage fails', async () => {
-    mockInsertImage.mockImplementationOnce(() => {
+  test('should throw if insertImages fails', async () => {
+    mockInsertImages.mockImplementationOnce(() => {
       throw new Error('DB error on insert')
     })
 
     const images: Image[] = [{ id: '1', url: 'image1.jpg', title: 'Image 1' }]
 
     await expect(saveImages(db, images)).rejects.toThrow('DB error on insert')
-    expect(mockDeleteImage).toHaveBeenCalledTimes(1)
-    expect(mockInsertImage).toHaveBeenCalledTimes(1)
+    expect(mockDeleteImages).toHaveBeenCalledTimes(1)
+    expect(mockInsertImages).toHaveBeenCalledTimes(1)
   })
 })

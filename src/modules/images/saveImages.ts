@@ -22,7 +22,11 @@ export default async function saveImages(
   }
 
   try {
-    await repository.insertImages(images)
+    const imagesToInsert = images.map(image => ({
+      url: image.url
+    }))
+    
+    await repository.insertImages(imagesToInsert)
     return true
   } catch (error) {
     throw new Error((error as Error).message || 'Failed to insert new images')
