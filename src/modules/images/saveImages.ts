@@ -10,7 +10,7 @@ export default async function saveImages(
   const repository = createImageRepository(db)
 
   try {
-    await repository.deleteImage()
+    await repository.deleteImages()
   } catch (error) {
     throw new Error(
       (error as Error).message || 'Failed to delete existing images'
@@ -22,7 +22,7 @@ export default async function saveImages(
   }
 
   try {
-    await repository.insertImage(images)
+    await repository.insertImages(images)
     return true
   } catch (error) {
     throw new Error((error as Error).message || 'Failed to insert new images')

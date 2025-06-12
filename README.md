@@ -8,8 +8,11 @@ Discord-Bot-with-a-REST-API
 │   ├── app.ts
 │   ├── index.ts
 │   ├── config
-│   │   └── configs.ts
+│   │   ├── configs.ts
+│   │   └── configErrorLogger.ts
 │   ├── database
+│   │   ├── index.ts
+│   │   ├── types.ts
 │   │   ├── data
 │   │   │   ├── sprintData.ts
 │   │   │   └── textData.ts
@@ -17,7 +20,8 @@ Discord-Bot-with-a-REST-API
 │   │   │   ├── bin.ts
 │   │   │   └── index.ts
 │   │   └── migrations
-│   │       └── TBD
+│   │       └── createDiscordBotDatabase.ts
+
 │   ├── middleware
 │   │   └── jsonErrors.ts
 │   ├── modules
@@ -35,64 +39,80 @@ Discord-Bot-with-a-REST-API
 │   │   │       └── getImages.test.ts
 │   │   ├── messages
 │   │   │   ├── controller.ts
-│   │   │   ├── repository.ts
+│   │   │   ├── generator.ts
 │   │   │   ├── schema.ts
-│   │   │   ├── validators.ts
-│   │   │   ├── service.ts
-│   │   │   └── tests
-│   │   │       ├── controller.test.ts
-│   │   │       ├── repository.test.ts
-│   │   │       ├── service.test.ts
-│   │   │       └── validators.test.ts
+│   │   │   ├── validator.ts
+│   │   │   ├── repository.ts
+│   │   │   ├── messages.ts
+│   │   │   ├── tests
+│   │   │   │   ├── controller.test.ts
+│   │   │   │   ├── generator.test.ts
+│   │   │   │   ├── repository.test.ts
+│   │   │   │   ├── messages.test.ts
+│   │   │   │   └── validator.test.ts
+│   │   │   └── utils
+│   │   │       ├── getRandomImage.ts
+│   │   │       ├── getRandomTemplates.ts
+│   │   │       └── tests
+│   │   │           ├── getRandomImage.test.ts
+│   │   │           └── getRandomTemplates.test.ts
 │   │   ├── sprints
 │   │   │   ├── controller.ts
 │   │   │   ├── repository.ts
 │   │   │   ├── schema.ts
-│   │   │   ├── validators.ts
-│   │   │   ├── service.ts
+│   │   │   ├── validator.ts
+│   │   │   ├── sprints.ts
 │   │   │   └── tests
 │   │   │       ├── controller.test.ts
-│   │   │       └── repository.test.ts
+│   │   │       ├── repository.test.ts
+│   │   │       ├── sprints.test.ts
+│   │   │       └── validator.test.ts
 │   │   ├── templates
 │   │   │   ├── controller.ts
 │   │   │   ├── repository.ts
 │   │   │   ├── schema.ts
-│   │   │   ├── validators.ts
-│   │   │   ├── service.ts
+│   │   │   ├── templates.ts
+│   │   │   ├── validator.ts
 │   │   │   └── tests
 │   │   │       ├── controller.test.ts
-│   │   │       └── repository.test.ts
+│   │   │       ├── repository.test.ts
+│   │   │       ├── templates.test.ts
+│   │   │       └── validator.test.ts
 │   │   └── users
-│   │   │   ├── controller.ts
-│   │   │   ├── repository.ts
-│   │   │   └── tests
-│   │   │       ├── controller.test.ts
-│   │   │       └── repository.test.ts
+│   │       ├── controller.ts
+│   │       ├── repository.ts
+│   │       ├── loadUsersData.ts
+│   │       ├── users.ts
+│   │       └── tests
+│   │           ├── controller.test.ts
+│   │           ├── repository.test.ts
+│   │           ├── users.test.ts
+│   │           └── loadUsersData.test.ts
 │   └── utils
-│       ├── createMigration.ts
-│       ├── fileOperations.ts
-│       └── middleware.ts
-│       │── errors
-│       │   ├── badRequest.ts
-│       │   ├── notAllowed.ts
-│       │   └── notFound.ts
-│       └── tests
-│           ├── createMigration.test.ts
-│           └── fileOperations.test.ts
+│       ├── middleware.ts
+│       └── errors
+│           ├── BadRequest.ts
+│           ├── ErrorLogger.ts
+│           ├── MethodNotAllowed.ts
+│           └── NotFound.ts
 ├── tests
 │   └── utils
 │       ├── createTestDatabase
 │       │   ├── ModuleMigrationProvider.ts
 │       │   ├── index.ts
-│       │   └── clearDatabase.ts
-│       │── tests
-│       │   └── index.test.ts
-│       ├── discord.ts
+│       │   └── databaseCleaner.ts
+│       ├── fixtures.ts
+│       ├── mockDiscordService.ts
 │       └── records.ts
 ├── .env
+├── .eslintrc.cjs
+├── .gitignore
+├── .prettierrc
 ├── package-lock.json
 ├── package.json
+├── README.md
 ├── tsconfig.eslint.json
 ├── tsconfig.json
+├── vite.config.ts
 └── vitest.config.js
 ```
