@@ -1,5 +1,6 @@
 import type { Kysely, Selectable, Insertable, DeleteResult } from 'kysely'
-import type { Sprints, DB } from '@/database/types'
+import type { Sprints, DB } from '@/database'
+import { sprints as defaultSprints } from '@/modules/sprints/data/sprintData'
 
 export type SprintSelect = Selectable<Sprints>
 export type SprintInsert = Insertable<Sprints>
@@ -10,6 +11,7 @@ export interface SprintsRepository {
   findById(sprintId: number): Promise<SprintSelect | undefined>
   create(sprint: SprintInsert): Promise<SprintSelect>
   remove(sprintId: number): Promise<DeleteResult>
+  seed(): Promise<void>
 }
 
 export default (db: Kysely<DB>): SprintsRepository => ({
@@ -50,5 +52,9 @@ export default (db: Kysely<DB>): SprintsRepository => ({
       throw new Error('Failed to delete sprint')
     }
     return results[0]
+  },
+
+  seed: async () => {
+    await db.insertInto('sprints').values(defaultSprints).execute()
   },
 })

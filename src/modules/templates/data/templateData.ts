@@ -1,4 +1,7 @@
-export const templates: TamplateTest[] = [
+// database/data/templatedata.ts
+import type { NewTemplate } from '@/modules/templates/repository'
+
+export const templates: NewTemplate[] = [
   {
     text: 'Fantastic work, {username}, on finishing {sprint}! Your dedication truly shines. Keep that momentum going!',
   },
