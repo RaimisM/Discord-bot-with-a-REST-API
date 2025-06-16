@@ -5,12 +5,17 @@ import Logger from '@/config/configErrorLogger'
 import { DATABASE_URL, GIPHY_API_KEY } from '@/config/config'
 import createImagesManager from '@/modules/images/getImages'
 import loadImages from '@/modules/images/loadImages'
+import createSprintsRepository from '@/modules/sprints/repository'
 
 const PORT = 3000
 
 async function startServer() {
   try {
     const database = createDatabase(DATABASE_URL)
+
+    const sprintsRepository = createSprintsRepository(database)
+    await sprintsRepository.seed()
+
     const app = createApp(database)
 
     const imagesManager = createImagesManager(GIPHY_API_KEY)

@@ -13,9 +13,6 @@ Discord-Bot-with-a-REST-API
 │   ├── database
 │   │   ├── index.ts
 │   │   ├── types.ts
-│   │   ├── data
-│   │   │   ├── sprintData.ts
-│   │   │   └── textData.ts
 │   │   ├── migrate
 │   │   │   ├── bin.ts
 │   │   │   └── index.ts
@@ -61,22 +58,26 @@ Discord-Bot-with-a-REST-API
 │   │   │   ├── schema.ts
 │   │   │   ├── validator.ts
 │   │   │   ├── sprints.ts
-│   │   │   └── tests
-│   │   │       ├── controller.test.ts
-│   │   │       ├── repository.test.ts
-│   │   │       ├── sprints.test.ts
-│   │   │       └── validator.test.ts
+│   │   │   ├── tests
+│   │   │   │   ├── controller.test.ts
+│   │   │   │   ├── repository.test.ts
+│   │   │   │   ├── sprints.test.ts
+│   │   │   │   └── validator.test.ts
+│   │   │   └── data
+│   │   │       └── sprintData.ts
 │   │   ├── templates
 │   │   │   ├── controller.ts
 │   │   │   ├── repository.ts
 │   │   │   ├── schema.ts
 │   │   │   ├── templates.ts
 │   │   │   ├── validator.ts
-│   │   │   └── tests
-│   │   │       ├── controller.test.ts
-│   │   │       ├── repository.test.ts
-│   │   │       ├── templates.test.ts
-│   │   │       └── validator.test.ts
+│   │   │   ├── tests
+│   │   │   │   ├── controller.test.ts
+│   │   │   │   ├── repository.test.ts
+│   │   │   │   ├── templates.test.ts
+│   │   │   │   └── validator.test.ts
+│   │   │   └── data
+│   │   │       └── templateData.ts
 │   │   └── users
 │   │       ├── controller.ts
 │   │       ├── repository.ts
