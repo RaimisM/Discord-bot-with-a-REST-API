@@ -5,10 +5,11 @@ import cleanDatabase from '../../../../tests/utils/createTestDatabase/databaseCl
 import createApp from '../../../app'
 import * as fixtures from '../../../../tests/utils/fixtures'
 import { SprintSelect } from '../repository'
+import MockDiscordService from '../../../../tests/utils/mockDiscordService'
 
 const { db } = await createTestDatabase()
-
-const app = createApp(db)
+const mockDiscordBot = new MockDiscordService()
+const app = createApp(db, mockDiscordBot)
 const createSprints = createFor(db, 'sprints')
 
 describe('GET /sprints happy path', () => {
