@@ -15,7 +15,8 @@ beforeAll(async () => {
   destroy = testDb.destroy
   app = express()
   app.use(express.json())
-  app.use(usersManager(db))
+
+  app.use('/users', usersManager(db))
 })
 
 afterAll(async () => {

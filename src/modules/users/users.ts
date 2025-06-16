@@ -6,7 +6,7 @@ const usersManager = (db: Database) => {
   const router = Router()
   const controller = createController(db)
 
-  router.use('/users', controller)
+  router.use(controller)
 
   return router
 }
