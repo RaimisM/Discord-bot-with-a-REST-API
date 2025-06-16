@@ -24,21 +24,22 @@ const mockDiscordBot = {
   sendMessage: vi.fn(),
 }
 
-vi.mock('../validator', () => ({
-  validGetRequest: vi.fn(),
-  validPostRequest: vi.fn(),
-}))
 vi.mock('../repository', () => ({
   default: vi.fn(() => mockMessagesRepository),
 }))
-vi.mock('@/modules/users/loadUsersData', () => ({
-  default: vi.fn(),
+vi.mock('@/modules/sprints/repository', () => ({
+  default: vi.fn(() => mockSprintsRepository),
 }))
 vi.mock('@/modules/users/repository', () => ({
   default: vi.fn(() => mockUsersRepository),
 }))
-vi.mock('@/modules/sprints/repository', () => ({
-  default: vi.fn(() => mockSprintsRepository),
+
+vi.mock('../validator', () => ({
+  validGetRequest: vi.fn(),
+  validPostRequest: vi.fn(),
+}))
+vi.mock('@/modules/users/loadUsersData', () => ({
+  default: vi.fn(),
 }))
 vi.mock('../utils/getRandomTemplate', () => ({
   default: vi.fn(),
@@ -50,11 +51,12 @@ vi.mock('../generator', () => ({
   default: vi.fn(),
 }))
 
-describe('messageManager', () => {
-  const manager = createMessageManager(mockDb, mockDiscordBot)
+describe('createMessageManager', () => {
+  let manager: ReturnType<typeof createMessageManager>
 
   beforeEach(() => {
     vi.clearAllMocks()
+    manager = createMessageManager(mockDb, mockDiscordBot)
   })
 
   describe('getMessages', () => {
@@ -120,7 +122,7 @@ describe('messageManager', () => {
     const mockGeneratedContent = 'Testukas completed Sprint 1'
     const mockDiscordResponse = {
       content: mockGeneratedContent,
-      createdAt: '2024-01-01T00:00:00Z',
+      createdAt: '2025-01-01T00:00:00Z',
     }
 
     beforeEach(() => {
@@ -136,7 +138,7 @@ describe('messageManager', () => {
           id: 1,
           originalMessage: mockGeneratedContent,
           gifUrl: mockImage,
-          createdAt: '2024-01-01T00:00:00Z',
+          createdAt: '2025-01-01T00:00:00Z',
           sprintId: mockSprint.id,
           sprintName: mockSprint.sprintName,
           sprintTopic: mockSprint.topicName,
@@ -160,6 +162,7 @@ describe('messageManager', () => {
       expect(mockUsersRepository.findByUsername).toHaveBeenCalledWith(
         validRequestBody.username
       )
+      expect(loadUsersData).toHaveBeenCalledWith(mockDb, mockDiscordBot)
       expect(getRandomTemplate).toHaveBeenCalledWith(mockDb)
       expect(getRandomImage).toHaveBeenCalledWith(mockDb)
       expect(generateMessage).toHaveBeenCalledWith({
@@ -183,7 +186,6 @@ describe('messageManager', () => {
           username: mockUser.username,
         },
       ])
-      expect(loadUsersData).toHaveBeenCalledWith(mockDb, mockDiscordBot)
 
       expect(result).toEqual({
         message: `Message to the Discord user: ${mockUser.username} was sent at: ${mockDiscordResponse.createdAt}`,
@@ -192,9 +194,7 @@ describe('messageManager', () => {
     })
 
     it('should throw BadRequest for invalid request object', async () => {
-      await expect(manager.createMessage(null as any)).rejects.toThrow(
-        BadRequest
-      )
+      await expect(manager.createMessage(null as any)).rejects.toThrow(BadRequest)
       await expect(manager.createMessage({} as any)).rejects.toThrow(BadRequest)
     })
 
@@ -206,9 +206,7 @@ describe('messageManager', () => {
         throw validationError
       })
 
-      await expect(manager.createMessage(req as any)).rejects.toThrow(
-        validationError
-      )
+      await expect(manager.createMessage(req as any)).rejects.toThrow(validationError)
       expect(mockSprintsRepository.findByName).not.toHaveBeenCalled()
     })
 
@@ -226,9 +224,7 @@ describe('messageManager', () => {
 
       mockUsersRepository.findByUsername.mockResolvedValue(null)
 
-      await expect(manager.createMessage(req as any)).rejects.toThrow(
-        BadRequest
-      )
+      await expect(manager.createMessage(req as any)).rejects.toThrow(BadRequest)
       expect(getRandomTemplate).not.toHaveBeenCalled()
     })
 
@@ -238,9 +234,7 @@ describe('messageManager', () => {
 
       ;(getRandomTemplate as Mock).mockRejectedValue(templateError)
 
-      await expect(manager.createMessage(req as any)).rejects.toThrow(
-        'Template service unavailable'
-      )
+      await expect(manager.createMessage(req as any)).rejects.toThrow('Template service unavailable')
       expect(generateMessage).not.toHaveBeenCalled()
     })
 
@@ -250,9 +244,7 @@ describe('messageManager', () => {
 
       ;(getRandomImage as Mock).mockRejectedValue(imageError)
 
-      await expect(manager.createMessage(req as any)).rejects.toThrow(
-        'Image service unavailable'
-      )
+      await expect(manager.createMessage(req as any)).rejects.toThrow('Image service unavailable')
       expect(generateMessage).not.toHaveBeenCalled()
     })
 
@@ -261,9 +253,7 @@ describe('messageManager', () => {
 
       mockDiscordBot.sendMessage.mockResolvedValue(null)
 
-      await expect(manager.createMessage(req as any)).rejects.toThrow(
-        'Failed to send the message to Discord'
-      )
+      await expect(manager.createMessage(req as any)).rejects.toThrow('Failed to send the message to Discord')
       expect(mockMessagesRepository.insertMessages).not.toHaveBeenCalled()
     })
 
@@ -273,10 +263,7 @@ describe('messageManager', () => {
 
       mockMessagesRepository.insertMessages.mockRejectedValue(dbError)
 
-      await expect(manager.createMessage(req as any)).rejects.toThrow(
-        'Database insertion failed'
-      )
-      expect(loadUsersData).not.toHaveBeenCalled()
+      await expect(manager.createMessage(req as any)).rejects.toThrow('Database insertion failed')
     })
 
     it('should handle message generation errors', async () => {
@@ -285,9 +272,7 @@ describe('messageManager', () => {
 
       ;(generateMessage as Mock).mockRejectedValue(generationError)
 
-      await expect(manager.createMessage(req as any)).rejects.toThrow(
-        generationError
-      )
+      await expect(manager.createMessage(req as any)).rejects.toThrow(generationError)
       expect(mockDiscordBot.sendMessage).not.toHaveBeenCalled()
     })
   })

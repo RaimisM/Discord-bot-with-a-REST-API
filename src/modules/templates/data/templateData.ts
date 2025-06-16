@@ -1,4 +1,3 @@
-// database/data/templatedata.ts
 import type { NewTemplate } from '@/modules/templates/repository'
 
 export const templates: NewTemplate[] = [

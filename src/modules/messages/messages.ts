@@ -33,6 +33,8 @@ export function createMessageManager(db: any, discordBot: any) {
 
       const body = validators.validPostRequest(req.body)
 
+      await loadUsersData(db, discordBot)
+
       const sprint = await sprintsRepository.findByName(body.sprintName)
       if (!sprint) {
         throw new NotFound('Sprint not found')
@@ -92,8 +94,6 @@ export function createMessageManager(db: any, discordBot: any) {
       } catch (error) {
         throw new Error('Database insertion failed')
       }
-
-      await loadUsersData(db, discordBot)
 
       return {
         message: `Message to the Discord user: ${user.username} was sent at: ${messageSent.createdAt}`,
