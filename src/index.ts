@@ -14,7 +14,7 @@ async function startServer() {
     const app = createApp(database)
 
     const imagesManager = createImagesManager(GIPHY_API_KEY)
-    await loadImages(database, imagesManager, 'congratulation image')
+    await loadImages(database, imagesManager, 'great job')
     Logger.info('Images successfully loaded into the database')
 
     app.listen(PORT, () => {
