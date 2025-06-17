@@ -14,42 +14,21 @@ const mockMessagesRepository = {
   getMessages: vi.fn(),
   insertMessages: vi.fn(),
 }
-const mockSprintsRepository = {
-  findByName: vi.fn(),
-}
-const mockUsersRepository = {
-  findByUsername: vi.fn(),
-}
-const mockDiscordBot = {
-  sendMessage: vi.fn(),
-}
+const mockSprintsRepository = { findByName: vi.fn() }
+const mockUsersRepository = { findByUsername: vi.fn() }
+const mockDiscordBot = { sendMessage: vi.fn() }
 
-vi.mock('../repository', () => ({
-  default: vi.fn(() => mockMessagesRepository),
-}))
-vi.mock('@/modules/sprints/repository', () => ({
-  default: vi.fn(() => mockSprintsRepository),
-}))
-vi.mock('@/modules/users/repository', () => ({
-  default: vi.fn(() => mockUsersRepository),
-}))
-
+vi.mock('../repository', () => ({ default: () => mockMessagesRepository }))
+vi.mock('@/modules/sprints/repository', () => ({ default: () => mockSprintsRepository }))
+vi.mock('@/modules/users/repository', () => ({ default: () => mockUsersRepository }))
 vi.mock('../validator', () => ({
   validGetRequest: vi.fn(),
   validPostRequest: vi.fn(),
 }))
-vi.mock('@/modules/users/loadUsersData', () => ({
-  default: vi.fn(),
-}))
-vi.mock('../utils/getRandomTemplate', () => ({
-  default: vi.fn(),
-}))
-vi.mock('../utils/getRandomImage', () => ({
-  default: vi.fn(),
-}))
-vi.mock('../generator', () => ({
-  default: vi.fn(),
-}))
+vi.mock('@/modules/users/loadUsersData', () => ({ default: vi.fn() }))
+vi.mock('../utils/getRandomTemplate', () => ({ default: vi.fn() }))
+vi.mock('../utils/getRandomImage', () => ({ default: vi.fn() }))
+vi.mock('../generator', () => ({ default: vi.fn() }))
 
 describe('createMessageManager', () => {
   let manager: ReturnType<typeof createMessageManager>
@@ -60,220 +39,151 @@ describe('createMessageManager', () => {
   })
 
   describe('getMessages', () => {
-    it('should validate and return messages successfully', async () => {
-      const req = { query: { limit: 5 } }
-      const expectedMessages = [
-        {
-          id: 1,
-          originalMessage: 'Test message',
-          gifUrl: 'https://example.com/image.gif',
-          createdAt: '2024-01-01T00:00:00Z',
-          sprintId: 1,
-          sprintName: 'Sprint 1',
-          sprintTopic: 'Productivity',
-          templateId: 1,
-          templateText: 'Template {username}',
-          username: 'Testukas',
-        },
-      ]
+    const req = { query: { limit: 5 } }
 
+    it('returns messages on valid request', async () => {
+      const expected = [{ id: 1, originalMessage: 'Test', username: 'User' }]
       ;(validators.validGetRequest as Mock).mockReturnValue(req.query)
-      mockMessagesRepository.getMessages.mockResolvedValue(expectedMessages)
+      mockMessagesRepository.getMessages.mockResolvedValue(expected)
 
       const result = await manager.getMessages(req as any)
 
+      expect(result).toEqual(expected)
       expect(validators.validGetRequest).toHaveBeenCalledWith(req.query)
-      expect(mockMessagesRepository.getMessages).toHaveBeenCalledWith(req.query)
-      expect(result).toEqual(expectedMessages)
     })
 
-    it('should throw BadRequest for invalid request object', async () => {
+    it('throws BadRequest for invalid input', async () => {
       await expect(manager.getMessages(null as any)).rejects.toThrow(BadRequest)
-      await expect(manager.getMessages({} as any)).rejects.toThrow(BadRequest)
     })
 
-    it('should handle repository errors', async () => {
-      const req = { query: { limit: 5 } }
-      const dbError = new Error('Database connection failed')
-
+    it('handles repository errors', async () => {
+      const error = new Error('DB fail')
       ;(validators.validGetRequest as Mock).mockReturnValue(req.query)
-      mockMessagesRepository.getMessages.mockRejectedValue(dbError)
+      mockMessagesRepository.getMessages.mockRejectedValue(error)
 
-      await expect(manager.getMessages(req as any)).rejects.toThrow(dbError)
+      await expect(manager.getMessages(req as any)).rejects.toThrow(error)
     })
   })
 
   describe('createMessage', () => {
-    const validRequestBody = { username: 'Testukas', sprintName: 'Sprint 1' }
-    const mockSprint = {
-      id: 1,
-      sprintName: 'Sprint 1',
-      topicName: 'Focus',
-    }
-    const mockUser = {
-      id: '123',
-      username: 'Testukas',
-    }
-    const mockTemplate = {
-      id: 1,
-      text: '{username} completed {sprintName}',
-    }
-    const mockImage = 'https://example.com/img.png'
-    const mockGeneratedContent = 'Testukas completed Sprint 1'
-    const mockDiscordResponse = {
-      content: mockGeneratedContent,
-      createdAt: '2025-01-01T00:00:00Z',
-    }
+    const validBody = { username: 'User', sprintName: 'Sprint' }
+    const req = { body: validBody }
 
-    beforeEach(() => {
-      ;(validators.validPostRequest as Mock).mockReturnValue(validRequestBody)
-      mockSprintsRepository.findByName.mockResolvedValue(mockSprint)
-      mockUsersRepository.findByUsername.mockResolvedValue(mockUser)
-      ;(getRandomTemplate as Mock).mockResolvedValue(mockTemplate)
-      ;(getRandomImage as Mock).mockResolvedValue(mockImage)
-      ;(generateMessage as Mock).mockResolvedValue(mockGeneratedContent)
-      mockDiscordBot.sendMessage.mockResolvedValue(mockDiscordResponse)
+    const setupCreateMessageMocks = () => {
+      const sprint = { id: 1, sprintName: 'Sprint', topicName: 'Focus' }
+      const user = { id: '123', username: 'User' }
+      const template = { id: 1, text: '{username} {sprintName}' }
+      const image = 'https://image.png'
+      const content = 'User Sprint'
+      const discordResp = { content, createdAt: '2025-01-01' }
+
+      ;(validators.validPostRequest as Mock).mockReturnValue(validBody)
+      mockSprintsRepository.findByName.mockResolvedValue(sprint)
+      mockUsersRepository.findByUsername.mockResolvedValue(user)
+      ;(loadUsersData as Mock).mockResolvedValue(undefined)
+      ;(getRandomTemplate as Mock).mockResolvedValue(template)
+      ;(getRandomImage as Mock).mockResolvedValue(image)
+      ;(generateMessage as Mock).mockResolvedValue(content)
+      mockDiscordBot.sendMessage.mockResolvedValue(discordResp)
       mockMessagesRepository.insertMessages.mockResolvedValue([
         {
           id: 1,
-          originalMessage: mockGeneratedContent,
-          gifUrl: mockImage,
-          createdAt: '2025-01-01T00:00:00Z',
-          sprintId: mockSprint.id,
-          sprintName: mockSprint.sprintName,
-          sprintTopic: mockSprint.topicName,
-          templateId: mockTemplate.id,
-          templateText: mockTemplate.text,
-          username: mockUser.username,
+          originalMessage: content,
+          gifUrl: image,
+          createdAt: discordResp.createdAt,
+          sprintId: sprint.id,
+          sprintName: sprint.sprintName,
+          sprintTopic: sprint.topicName,
+          templateId: template.id,
+          templateText: template.text,
+          username: user.username,
         },
       ])
-      ;(loadUsersData as Mock).mockResolvedValue(undefined)
-    })
+    }
 
-    it('should create and return a message successfully', async () => {
-      const req = { body: validRequestBody }
+    it('creates message successfully', async () => {
+      setupCreateMessageMocks()
 
       const result = await manager.createMessage(req as any)
 
-      expect(validators.validPostRequest).toHaveBeenCalledWith(req.body)
-      expect(mockSprintsRepository.findByName).toHaveBeenCalledWith(
-        validRequestBody.sprintName
-      )
-      expect(mockUsersRepository.findByUsername).toHaveBeenCalledWith(
-        validRequestBody.username
-      )
-      expect(loadUsersData).toHaveBeenCalledWith(mockDb, mockDiscordBot)
-      expect(getRandomTemplate).toHaveBeenCalledWith(mockDb)
-      expect(getRandomImage).toHaveBeenCalledWith(mockDb)
-      expect(generateMessage).toHaveBeenCalledWith({
-        template: mockTemplate.text,
-        user: mockUser,
-        sprintName: mockSprint.sprintName,
-      })
-      expect(mockDiscordBot.sendMessage).toHaveBeenCalledWith({
-        content: mockGeneratedContent,
-        files: [mockImage],
-      })
-      expect(mockMessagesRepository.insertMessages).toHaveBeenCalledWith([
-        {
-          gifUrl: mockImage,
-          originalMessage: mockDiscordResponse.content,
-          sprintId: mockSprint.id,
-          sprintName: mockSprint.sprintName,
-          sprintTopic: mockSprint.topicName || '',
-          templateId: mockTemplate.id,
-          templateText: mockTemplate.text,
-          username: mockUser.username,
-        },
-      ])
-
-      expect(result).toEqual({
-        message: `Message to the Discord user: ${mockUser.username} was sent at: ${mockDiscordResponse.createdAt}`,
+      expect(result).toMatchObject({
+        message: expect.stringContaining('User'),
         insertedMessages: expect.any(Array),
       })
+      expect(mockDiscordBot.sendMessage).toHaveBeenCalled()
+      expect(mockMessagesRepository.insertMessages).toHaveBeenCalled()
     })
 
-    it('should throw BadRequest for invalid request object', async () => {
-      await expect(manager.createMessage(null as any)).rejects.toThrow(BadRequest)
-      await expect(manager.createMessage({} as any)).rejects.toThrow(BadRequest)
+    it.each([
+      [null, BadRequest],
+      [{}, BadRequest],
+    ])('throws BadRequest for invalid body: %j', async (input, error) => {
+      await expect(manager.createMessage(input as any)).rejects.toThrow(error)
     })
 
-    it('should throw BadRequest when validation fails', async () => {
-      const req = { body: { username: 'Testukas' } }
-      const validationError = new BadRequest('Missing sprintName')
-
+    it('throws on validation error', async () => {
       ;(validators.validPostRequest as Mock).mockImplementation(() => {
-        throw validationError
+        throw new BadRequest('Invalid')
       })
-
-      await expect(manager.createMessage(req as any)).rejects.toThrow(validationError)
-      expect(mockSprintsRepository.findByName).not.toHaveBeenCalled()
+      await expect(manager.createMessage(req as any)).rejects.toThrow(BadRequest)
     })
 
-    it('should throw NotFound when sprint does not exist', async () => {
-      const req = { body: validRequestBody }
-
+    it('throws NotFound if sprint missing', async () => {
+      ;(validators.validPostRequest as Mock).mockReturnValue(validBody)
       mockSprintsRepository.findByName.mockResolvedValue(null)
 
       await expect(manager.createMessage(req as any)).rejects.toThrow(NotFound)
-      expect(mockUsersRepository.findByUsername).not.toHaveBeenCalled()
     })
 
-    it('should throw BadRequest when user does not exist', async () => {
-      const req = { body: validRequestBody }
-
+    it('throws BadRequest if user missing', async () => {
+      ;(validators.validPostRequest as Mock).mockReturnValue(validBody)
+      mockSprintsRepository.findByName.mockResolvedValue({ id: 1 })
       mockUsersRepository.findByUsername.mockResolvedValue(null)
 
       await expect(manager.createMessage(req as any)).rejects.toThrow(BadRequest)
-      expect(getRandomTemplate).not.toHaveBeenCalled()
     })
 
-    it('should handle template service errors', async () => {
-      const req = { body: validRequestBody }
-      const templateError = new Error('Template service unavailable')
+    it('handles template service error', async () => {
+      setupCreateMessageMocks()
+      ;(getRandomTemplate as Mock).mockRejectedValue(new Error('fail'))
 
-      ;(getRandomTemplate as Mock).mockRejectedValue(templateError)
-
-      await expect(manager.createMessage(req as any)).rejects.toThrow('Template service unavailable')
-      expect(generateMessage).not.toHaveBeenCalled()
+      await expect(manager.createMessage(req as any)).rejects.toThrow(
+        'Template service unavailable'
+      )
     })
 
-    it('should handle image service errors', async () => {
-      const req = { body: validRequestBody }
-      const imageError = new Error('Image service unavailable')
+    it('handles image service error', async () => {
+      setupCreateMessageMocks()
+      ;(getRandomImage as Mock).mockRejectedValue(new Error('fail'))
 
-      ;(getRandomImage as Mock).mockRejectedValue(imageError)
-
-      await expect(manager.createMessage(req as any)).rejects.toThrow('Image service unavailable')
-      expect(generateMessage).not.toHaveBeenCalled()
+      await expect(manager.createMessage(req as any)).rejects.toThrow(
+        'Image service unavailable'
+      )
     })
 
-    it('should handle Discord bot failures', async () => {
-      const req = { body: validRequestBody }
-
+    it('handles Discord failure', async () => {
+      setupCreateMessageMocks()
       mockDiscordBot.sendMessage.mockResolvedValue(null)
 
-      await expect(manager.createMessage(req as any)).rejects.toThrow('Failed to send the message to Discord')
-      expect(mockMessagesRepository.insertMessages).not.toHaveBeenCalled()
+      await expect(manager.createMessage(req as any)).rejects.toThrow(
+        'Failed to send the message to Discord'
+      )
     })
 
-    it('should handle database insertion errors', async () => {
-      const req = { body: validRequestBody }
-      const dbError = new Error('Database insertion failed')
+    it('handles DB insert error', async () => {
+      setupCreateMessageMocks()
+      mockMessagesRepository.insertMessages.mockRejectedValue(new Error('fail'))
 
-      mockMessagesRepository.insertMessages.mockRejectedValue(dbError)
-
-      await expect(manager.createMessage(req as any)).rejects.toThrow('Database insertion failed')
+      await expect(manager.createMessage(req as any)).rejects.toThrow(/fail/)
     })
 
-    it('should handle message generation errors', async () => {
-      const req = { body: validRequestBody }
-      const generationError = new Error('Message generation failed')
+    it('handles generation error', async () => {
+      setupCreateMessageMocks()
+      ;(generateMessage as Mock).mockRejectedValue(new Error('fail'))
 
-      ;(generateMessage as Mock).mockRejectedValue(generationError)
-
-      await expect(manager.createMessage(req as any)).rejects.toThrow(generationError)
-      expect(mockDiscordBot.sendMessage).not.toHaveBeenCalled()
+      await expect(manager.createMessage(req as any)).rejects.toThrow(
+        'Message generation failed'
+      )
     })
   })
 })

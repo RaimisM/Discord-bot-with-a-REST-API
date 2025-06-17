@@ -9,6 +9,7 @@ import * as validators from './validator'
 import getRandomTemplate from './utils/getRandomTemplate'
 import getRandomImage from './utils/getRandomImage'
 import generateMessage from './generator'
+import Logger from '@/config/configErrorLogger'
 
 export function createMessageManager(db: any, discordBot: any) {
   const messagesRepository = createMessagesRepository(db)
@@ -17,66 +18,71 @@ export function createMessageManager(db: any, discordBot: any) {
 
   return {
     async getMessages(req: Request) {
-      if (!req || !req.query) {
-        throw new BadRequest('Invalid request object')
-      }
-
+      if (!req?.query) throw new BadRequest('Invalid request object')
       const filters = validators.validGetRequest(req.query)
-      const messages = await messagesRepository.getMessages(filters)
-      return messages
+      return messagesRepository.getMessages(filters)
     },
 
     async createMessage(req: Request) {
-      if (!req || !req.body) {
-        throw new BadRequest('Invalid request object')
-      }
-
+      if (!req?.body) throw new BadRequest('Invalid request object')
       const body = validators.validPostRequest(req.body)
 
       await loadUsersData(db, discordBot)
 
       const sprint = await sprintsRepository.findByName(body.sprintName)
-      if (!sprint) {
-        throw new NotFound('Sprint not found')
-      }
+      if (!sprint) throw new NotFound('Sprint not found')
 
       const user = await usersRepository.findByUsername(body.username)
-      if (!user) {
-        throw new BadRequest('User not found')
-      }
+      if (!user) throw new BadRequest('User not found')
 
       let template
-      let image
-
       try {
         template = await getRandomTemplate(db)
       } catch (error) {
+        Logger.error(`getRandomTemplate failed: ${(error as Error).message}`)
         throw new Error('Template service unavailable')
       }
 
+      type Image = { url: string } | string
+
+      let imageUrl: string
       try {
-        image = await getRandomImage(db)
+        const image = await getRandomImage(db) as Image
+        imageUrl = typeof image === 'string' ? image : (image?.url ?? '')
+
+        if (!imageUrl) throw new Error('Missing image URL')
       } catch (error) {
+        Logger.error(`getRandomImage failed: ${(error as Error).message}`)
         throw new Error('Image service unavailable')
       }
 
-      const content = await generateMessage({
-        template: template.text,
-        user,
-        sprintName: sprint.sprintName,
-      })
+      let content
+      try {
+        content = await generateMessage({
+          template: template.text,
+          user,
+          sprintName: sprint.sprintName,
+        })
+      } catch (error) {
+        Logger.error(`generateMessage failed: ${(error as Error).message}`)
+        throw new Error('Message generation failed')
+      }
 
-      const messageSent = await discordBot.sendMessage({
-        content,
-        files: [image],
-      })
+      let messageSent
+      try {
+        messageSent = await discordBot.sendMessage({
+          content,
+          files: [imageUrl],
+        })
 
-      if (!messageSent) {
+        if (!messageSent) throw new Error()
+      } catch {
+        Logger.error(`Discord message sending failed`)
         throw new Error('Failed to send the message to Discord')
       }
 
       const messageToInsert = {
-        gifUrl: image,
+        gifUrl: imageUrl,
         originalMessage: messageSent.content,
         sprintId: sprint.id,
         sprintName: sprint.sprintName,
@@ -92,6 +98,14 @@ export function createMessageManager(db: any, discordBot: any) {
           messageToInsert,
         ])
       } catch (error) {
+        Logger.error(`Database insertion failed: ${(error as Error).message}`)
+        Logger.error(
+          `CRITICAL: Message sent to Discord but not saved: ${JSON.stringify({
+            discordMessageId: messageSent.id,
+            content: messageSent.content,
+            timestamp: messageSent.createdAt,
+          })}`
+        )
         throw new Error('Database insertion failed')
       }
 
