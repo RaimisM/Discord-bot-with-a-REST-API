@@ -8,12 +8,8 @@ interface Config {
 }
 
 function validateEnv(): Config {
-  const {
-    DATABASE_URL,
-    DISCORD_TOKEN_ID,
-    DISCORD_CHANNEL_ID,
-    GIPHY_API_KEY,
-  } = process.env
+  const { DATABASE_URL, DISCORD_TOKEN_ID, DISCORD_CHANNEL_ID, GIPHY_API_KEY } =
+    process.env
 
   const missingKeys: string[] = []
 
@@ -38,4 +34,9 @@ function validateEnv(): Config {
 }
 
 const config = process.env.NODE_ENV !== 'test' ? validateEnv() : ({} as Config)
-export const { DATABASE_URL, DISCORD_TOKEN_ID, DISCORD_CHANNEL_ID, GIPHY_API_KEY } = config
+export const {
+  DATABASE_URL,
+  DISCORD_TOKEN_ID,
+  DISCORD_CHANNEL_ID,
+  GIPHY_API_KEY,
+} = config

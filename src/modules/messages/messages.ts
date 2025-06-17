@@ -47,8 +47,8 @@ export function createMessageManager(db: any, discordBot: any) {
 
       let imageUrl: string
       try {
-        const image = await getRandomImage(db) as Image
-        imageUrl = typeof image === 'string' ? image : (image?.url ?? '')
+        const image = (await getRandomImage(db)) as Image
+        imageUrl = typeof image === 'string' ? image : image?.url ?? ''
 
         if (!imageUrl) throw new Error('Missing image URL')
       } catch (error) {

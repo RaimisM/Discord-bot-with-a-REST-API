@@ -19,8 +19,12 @@ const mockUsersRepository = { findByUsername: vi.fn() }
 const mockDiscordBot = { sendMessage: vi.fn() }
 
 vi.mock('../repository', () => ({ default: () => mockMessagesRepository }))
-vi.mock('@/modules/sprints/repository', () => ({ default: () => mockSprintsRepository }))
-vi.mock('@/modules/users/repository', () => ({ default: () => mockUsersRepository }))
+vi.mock('@/modules/sprints/repository', () => ({
+  default: () => mockSprintsRepository,
+}))
+vi.mock('@/modules/users/repository', () => ({
+  default: () => mockUsersRepository,
+}))
 vi.mock('../validator', () => ({
   validGetRequest: vi.fn(),
   validPostRequest: vi.fn(),
@@ -125,7 +129,9 @@ describe('createMessageManager', () => {
       ;(validators.validPostRequest as Mock).mockImplementation(() => {
         throw new BadRequest('Invalid')
       })
-      await expect(manager.createMessage(req as any)).rejects.toThrow(BadRequest)
+      await expect(manager.createMessage(req as any)).rejects.toThrow(
+        BadRequest
+      )
     })
 
     it('throws NotFound if sprint missing', async () => {
@@ -140,7 +146,9 @@ describe('createMessageManager', () => {
       mockSprintsRepository.findByName.mockResolvedValue({ id: 1 })
       mockUsersRepository.findByUsername.mockResolvedValue(null)
 
-      await expect(manager.createMessage(req as any)).rejects.toThrow(BadRequest)
+      await expect(manager.createMessage(req as any)).rejects.toThrow(
+        BadRequest
+      )
     })
 
     it('handles template service error', async () => {
