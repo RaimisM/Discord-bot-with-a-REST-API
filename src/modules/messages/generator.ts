@@ -1,10 +1,10 @@
 import { userMention } from 'discord.js'
-import { UsersSelector } from '../../users/repository'
+import { UsersSelect } from '@/modules/users/repository'
 
 export interface GenerateMessageOptions {
   template: string
-  user: UsersSelector
-  sprintCode: string
+  user: UsersSelect
+  sprintTopic: string
 }
 
 export default async function generateMessage(
@@ -14,7 +14,7 @@ export default async function generateMessage(
 
   const formedMessage = generateTemplate(options.template, {
     username: mentionUser,
-    sprint: options.sprintCode,
+    topic: options.sprintTopic,
   })
 
   return formedMessage

@@ -61,7 +61,7 @@ export function createMessageManager(db: any, discordBot: any) {
         content = await generateMessage({
           template: template.text,
           user,
-          sprintCode: sprint.sprintCode,
+          sprintTopic: sprint.topicName || '',
         })
       } catch (error) {
         Logger.error(`generateMessage failed: ${(error as Error).message}`)

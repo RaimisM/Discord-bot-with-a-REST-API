@@ -3,9 +3,9 @@ import generateMessage from '../generator'
 describe('generateMessage', () => {
   test('Should create message with user and sprint topic', async () => {
     const options = {
-      template: '{username} completed sprint: {sprint}',
+      template: '{username} completed sprint: {topic}',
       user: { id: '123', username: 'Tom' },
-      sprintCode: 'Python testing',
+      sprintTopic: 'Python testing',
     }
 
     const result = await generateMessage(options)
@@ -17,7 +17,7 @@ describe('generateMessage', () => {
     const options = {
       template: '{username} did something',
       user: { id: '456', username: 'Jerry' },
-      sprintCode: '',
+      sprintTopic: '',
     }
 
     const result = await generateMessage(options)
@@ -29,7 +29,7 @@ describe('generateMessage', () => {
     const options = {
       template: 'No placeholders here!',
       user: { id: '789', username: 'Alice' },
-      sprintCode: 'Some sprint',
+      sprintTopic: 'Some sprint',
     }
 
     const result = await generateMessage(options)
