@@ -70,13 +70,13 @@ describe('createMessageManager', () => {
   })
 
   describe('createMessage', () => {
-    const validBody = { username: 'User', sprintName: 'Sprint' }
+    const validBody = { username: 'User', sprintCode: 'Sprint' }
     const req = { body: validBody }
 
     const setupCreateMessageMocks = () => {
-      const sprint = { id: 1, sprintName: 'Sprint', topicName: 'Focus' }
+      const sprint = { id: 1, sprintCode: 'Sprint', topicName: 'Focus' }
       const user = { id: '123', username: 'User' }
-      const template = { id: 1, text: '{username} {sprintName}' }
+      const template = { id: 1, text: '{username} {sprintCode}' }
       const image = 'https://image.png'
       const content = 'User Sprint'
       const discordResp = { content, createdAt: '2025-01-01' }
@@ -96,7 +96,7 @@ describe('createMessageManager', () => {
           gifUrl: image,
           createdAt: discordResp.createdAt,
           sprintId: sprint.id,
-          sprintName: sprint.sprintName,
+          sprintCode: sprint.sprintCode,
           sprintTopic: sprint.topicName,
           templateId: template.id,
           templateText: template.text,

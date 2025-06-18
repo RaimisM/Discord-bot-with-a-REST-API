@@ -13,13 +13,13 @@ const app = createApp(db, mockDiscordBot)
 const createSprints = createFor(db, 'sprints')
 
 describe('GET /sprints happy path', () => {
-  let testSprintName: string
+  let testsprintCode: string
   let expectedSprint: SprintSelect
 
   beforeAll(async () => {
     await cleanDatabase(db)
     const [sprint1] = await createSprints(fixtures.sprints)
-    testSprintName = sprint1.sprintName
+    testsprintCode = sprint1.sprintCode
     expectedSprint = sprint1
   })
 
@@ -40,8 +40,8 @@ describe('GET /sprints happy path', () => {
     expect(response.body).toHaveLength(2)
   })
 
-  test('should get sprint by sprintName', async () => {
-    const query = { sprintName: testSprintName }
+  test('should get sprint by sprintCode', async () => {
+    const query = { sprintCode: testsprintCode }
     const response = await supertest(app).get('/sprints').query(query)
     expect(response.body).toHaveLength(1)
     expect(response.body[0]).toEqual(expectedSprint)
@@ -54,8 +54,8 @@ describe('GET /sprints happy path', () => {
     expect(response.body[0]).toEqual(expectedSprint)
   })
 
-  test('should respond with an error if sprintName does not exist', async () => {
-    const query = { sprintName: 'test' }
+  test('should respond with an error if sprintCode does not exist', async () => {
+    const query = { sprintCode: 'test' }
     const response = await supertest(app).get('/sprints').query(query)
     expect(response.statusCode).toBe(404)
     expect(response.body).toHaveProperty('error')
@@ -70,17 +70,17 @@ describe('GET /sprints happy path', () => {
 
 describe('POST /sprints', () => {
   const sprints = {
-    valid: { sprintName: 'Code-1', topicName: 'Sprint topic name' },
-    invalidName: { sprintName: 'C', topicName: 'Sprint topic name' },
-    invalidTopic: { sprintName: 'Code-2', topicName: 'S' },
-    noContext: { sprintName: '', topicName: '' },
+    valid: { sprintCode: 'Code-1', topicName: 'Sprint topic name' },
+    invalidName: { sprintCode: 'C', topicName: 'Sprint topic name' },
+    invalidTopic: { sprintCode: 'Code-2', topicName: 'S' },
+    noContext: { sprintCode: '', topicName: '' },
   }
 
   beforeAll(async () => {
     await cleanDatabase(db)
   })
 
-  test('should respond with a 400 status code if sprintName is already in the database', async () => {
+  test('should respond with a 400 status code if sprintCode is already in the database', async () => {
     const response = await supertest(app).post('/sprints').send(sprints.valid)
 
     expect(response.statusCode).toBe(400)
@@ -95,7 +95,7 @@ describe('POST /sprints', () => {
     expect(response.body).toHaveProperty('error')
   })
 
-  test('should respond with a 400 status code if sprintName is invalid', async () => {
+  test('should respond with a 400 status code if sprintCode is invalid', async () => {
     const response = await supertest(app)
       .post('/sprints')
       .send(sprints.invalidName)
@@ -112,14 +112,14 @@ describe('PATCH /sprints', () => {
   let sprintId: number
 
   const updateSprint = {
-    sprintName: 'Code-updated',
+    sprintCode: 'Code-updated',
     topicName: 'Sprint topic name updated',
   }
 
   beforeAll(async () => {
     await cleanDatabase(db)
     const [sprint] = await createSprints([
-      { sprintName: 'Code-1', topicName: 'Sprint topic name' },
+      { sprintCode: 'Code-1', topicName: 'Sprint topic name' },
     ])
     sprintId = sprint.id
   })
@@ -146,7 +146,7 @@ describe('PATCH /sprints', () => {
   test('should respond with 400 if update body is invalid', async () => {
     const response = await supertest(app)
       .patch(`/sprints/${sprintId}`)
-      .send({ sprintName: '', topicName: '' })
+      .send({ sprintCode: '', topicName: '' })
     expect(response.statusCode).toBe(400)
     expect(response.body).toHaveProperty('error')
   })
@@ -162,7 +162,7 @@ describe('DELETE /sprints', () => {
   beforeAll(async () => {
     await cleanDatabase(db)
     const [sprint] = await createSprints([
-      { sprintName: 'Code-1', topicName: 'Sprint topic name' },
+      { sprintCode: 'Code-1', topicName: 'Sprint topic name' },
     ])
     sprintId = sprint.id
   })

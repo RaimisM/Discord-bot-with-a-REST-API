@@ -23,11 +23,11 @@ export const sprintManager = (db: Database) => {
         sprints = sprints.filter((s) => s.id === parsedQuery.id)
       }
 
-      if (parsedQuery.sprintName !== undefined) {
-        sprints = sprints.filter((s) => s.sprintName === parsedQuery.sprintName)
+      if (parsedQuery.sprintCode !== undefined) {
+        sprints = sprints.filter((s) => s.sprintCode === parsedQuery.sprintCode)
         if (sprints.length === 0) {
           throw new NotFound(
-            `Sprint with name "${parsedQuery.sprintName}" not found`
+            `Sprint with name "${parsedQuery.sprintCode}" not found`
           )
         }
       }
@@ -42,10 +42,10 @@ export const sprintManager = (db: Database) => {
     postSprints: async (req: Request) => {
       const parsed = validator.parseSprint(req.body)
 
-      const existing = await repo.findByName(parsed.sprintName)
+      const existing = await repo.findByName(parsed.sprintCode)
       if (existing) {
         throw new BadRequest(
-          `Sprint with name "${parsed.sprintName}" already exists`
+          `Sprint with name "${parsed.sprintCode}" already exists`
         )
       }
 

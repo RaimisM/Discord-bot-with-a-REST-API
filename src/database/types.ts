@@ -15,8 +15,8 @@ export interface Messages {
   gifUrl: string
   id: Generated<number>
   originalMessage: string
+  sprintCode: string
   sprintId: number
-  sprintName: string
   sprintTopic: string
   templateId: number
   templateText: string
@@ -25,7 +25,7 @@ export interface Messages {
 
 export interface Sprints {
   id: Generated<number>
-  sprintName: string
+  sprintCode: string
   topicName: string
 }
 

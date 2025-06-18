@@ -33,11 +33,11 @@ describe('Sprints Repository', () => {
     expect(sprints).toHaveLength(fixtures.sprints.length)
   })
 
-  test('should get sprint by sprintName', async () => {
+  test('should get sprint by sprintCode', async () => {
     const [createdSprint] = await createSprint([fixtures.sprints[0]])
-    const sprint = await repository.findByName(createdSprint.sprintName)
+    const sprint = await repository.findByName(createdSprint.sprintCode)
     expect(sprint).toMatchObject({
-      sprintName: createdSprint.sprintName,
+      sprintCode: createdSprint.sprintCode,
       topicName: createdSprint.topicName,
     })
   })
@@ -51,7 +51,7 @@ describe('Sprints Repository', () => {
 
   test('should add new sprint', async () => {
     const newSprint = {
-      sprintName: 'Test Sprint',
+      sprintCode: 'Test Sprint',
       topicName: 'Test Topic',
     }
     const created = await repository.create(newSprint)

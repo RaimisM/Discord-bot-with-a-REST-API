@@ -30,7 +30,7 @@ describe('Sprint Validator Tests', () => {
 
   describe('parseSprintQuery', () => {
     it('should validate query with all optional fields', () => {
-      const query = { limit: 10, sprintName: 'WD-1-1', id: 1 }
+      const query = { limit: 10, sprintCode: 'WD-1-1', id: 1 }
       expect(() => parseSprintQuery(query)).not.toThrow()
     })
 
@@ -42,15 +42,15 @@ describe('Sprint Validator Tests', () => {
       expect(() => parseSprintQuery({ id: -5 })).toThrow()
     })
 
-    it('should throw if sprintName is not a string', () => {
-      expect(() => parseSprintQuery({ sprintName: 123 })).toThrow()
+    it('should throw if sprintCode is not a string', () => {
+      expect(() => parseSprintQuery({ sprintCode: 123 })).toThrow()
     })
   })
 
   describe('parseSprint', () => {
     const validSprint = {
       id: 1,
-      sprintName: 'WD-1-1',
+      sprintCode: 'WD-1-1',
       topicName: 'Authentication',
     }
 
@@ -70,8 +70,8 @@ describe('Sprint Validator Tests', () => {
       expect(() => parseSprintUpdatable(partial)).not.toThrow()
     })
 
-    it('should validate a partial update with sprintName only', () => {
-      const partial = { sprintName: 'WD-2-1' }
+    it('should validate a partial update with sprintCode only', () => {
+      const partial = { sprintCode: 'WD-2-1' }
       expect(() => parseSprintUpdatable(partial)).not.toThrow()
     })
 

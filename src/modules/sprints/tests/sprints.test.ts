@@ -47,7 +47,7 @@ describe('sprintManager', () => {
   describe('postSprints', () => {
     it('should create a new sprint when valid and not duplicate', async () => {
       const requestBody = {
-        sprintName: 'Sprint A',
+        sprintCode: 'Sprint A',
         topicName: 'Topic 1',
         id: 1,
       }
@@ -58,27 +58,27 @@ describe('sprintManager', () => {
       mockRepo.findByName.mockResolvedValue(undefined)
       mockRepo.create.mockResolvedValue({
         id: 1,
-        sprintName: 'Sprint A',
+        sprintCode: 'Sprint A',
         topicName: 'Topic 1',
       })
 
       const result = await manager.postSprints(request)
 
       expect(mockRepo.create).toHaveBeenCalledWith({
-        sprintName: 'Sprint A',
+        sprintCode: 'Sprint A',
         topicName: 'Topic 1',
         id: 1,
       })
       expect(result).toEqual({
         id: 1,
-        sprintName: 'Sprint A',
+        sprintCode: 'Sprint A',
         topicName: 'Topic 1',
       })
     })
 
     it('should throw BadRequest if sprint name already exists', async () => {
       const requestBody = {
-        sprintName: 'Sprint A',
+        sprintCode: 'Sprint A',
         topicName: 'Topic 1',
         id: 1,
       }
@@ -88,7 +88,7 @@ describe('sprintManager', () => {
 
       mockRepo.findByName.mockResolvedValue({
         id: 1,
-        sprintName: 'Sprint A',
+        sprintCode: 'Sprint A',
         topicName: 'Topic 1',
       })
 
@@ -105,7 +105,7 @@ describe('sprintManager', () => {
 
         mockRepo.findById.mockResolvedValue({
           id: 123,
-          sprintName: 'Sprint X',
+          sprintCode: 'Sprint X',
           topicName: 'Topic Y',
         })
         mockRepo.remove.mockResolvedValue({ numDeletedRows: BigInt(1) })

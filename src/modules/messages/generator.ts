@@ -4,7 +4,7 @@ import { UsersSelector } from '../../users/repository'
 export interface GenerateMessageOptions {
   template: string
   user: UsersSelector
-  sprintName: string
+  sprintCode: string
 }
 
 export default async function generateMessage(
@@ -14,7 +14,7 @@ export default async function generateMessage(
 
   const formedMessage = generateTemplate(options.template, {
     username: mentionUser,
-    sprint: options.sprintName,
+    sprint: options.sprintCode,
   })
 
   return formedMessage

@@ -15,6 +15,7 @@
     "test": "vitest",
     "coverage": "vitest run --coverage",
     "seed:templates": "tsx src/modules/templates/seed.ts",
+    "seed:sprints": "tsx src/modules/sprints/seedSprints.ts",
     "migrate:make": "tsx src/utils/createMigration"
   },
   "keywords": [],

@@ -1,9 +1,9 @@
 import { z } from 'zod'
 
 export const sprintSchema = z.object({
-  sprintName: z
+  sprintCode: z
     .string({
-      invalid_type_error: 'SprintName must be a string',
+      invalid_type_error: 'sprintCode must be a string',
     })
     .min(3, { message: 'Must be 3 or more characters long' })
     .trim(),
@@ -27,7 +27,7 @@ export const querySchema = z.object({
     })
     .positive()
     .optional(),
-  sprintName: z
+  sprintCode: z
     .string({
       invalid_type_error: 'Sprint code must be a string',
     })

@@ -41,7 +41,7 @@ test('should get all messages', async () => {
   expect(messages[0]).toMatchObject({
     gifUrl: 'test url',
     originalMessage: 'congratulations!',
-    sprintName: 'WD-1.1',
+    sprintCode: 'WD-1.1',
     sprintTopic: 'First Steps Into Programming with Python',
     username: 'Tom',
   })
@@ -56,10 +56,10 @@ test('should find messages by username', async () => {
 })
 
 test('should find messages by sprint name', async () => {
-  const messages = await repository.getMessages({ sprintName: 'WD-1.1' })
+  const messages = await repository.getMessages({ sprintCode: 'WD-1.1' })
   expect(messages.length).toBeGreaterThan(0)
   expect(
-    messages.every((msg: { sprintName: string }) => msg.sprintName === 'WD-1.1')
+    messages.every((msg: { sprintCode: string }) => msg.sprintCode === 'WD-1.1')
   ).toBe(true)
 })
 
@@ -68,7 +68,7 @@ test('should insert new message', async () => {
     gifUrl: 'new gif url',
     originalMessage: 'new message content',
     sprintId: 1,
-    sprintName: 'WD-1.1',
+    sprintCode: 'WD-1.1',
     sprintTopic: 'First Steps Into Programming with Python',
     templateId: 1,
     templateText: 'congratulations {username} for {sprint}!',

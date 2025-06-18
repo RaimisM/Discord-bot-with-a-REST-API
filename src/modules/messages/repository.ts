@@ -6,7 +6,7 @@ export type MessagesInsert = Insertable<Messages>
 
 export interface GetMessagesOptions {
   username?: string
-  sprintName?: string
+  sprintCode?: string
 }
 
 export interface MessageRepository {
@@ -23,8 +23,8 @@ export default function createRepository(db: Kysely<DB>): MessageRepository {
         query = query.where('username', '=', options.username)
       }
 
-      if (options?.sprintName) {
-        query = query.where('sprintName', '=', options.sprintName)
+      if (options?.sprintCode) {
+        query = query.where('sprintCode', '=', options.sprintCode)
       }
 
       return query.execute()

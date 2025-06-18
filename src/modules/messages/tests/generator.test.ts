@@ -5,7 +5,7 @@ describe('generateMessage', () => {
     const options = {
       template: '{username} completed sprint: {sprint}',
       user: { id: '123', username: 'Tom' },
-      sprintName: 'Python testing',
+      sprintCode: 'Python testing',
     }
 
     const result = await generateMessage(options)
@@ -17,7 +17,7 @@ describe('generateMessage', () => {
     const options = {
       template: '{username} did something',
       user: { id: '456', username: 'Jerry' },
-      sprintName: '',
+      sprintCode: '',
     }
 
     const result = await generateMessage(options)
@@ -29,7 +29,7 @@ describe('generateMessage', () => {
     const options = {
       template: 'No placeholders here!',
       user: { id: '789', username: 'Alice' },
-      sprintName: 'Some sprint',
+      sprintCode: 'Some sprint',
     }
 
     const result = await generateMessage(options)

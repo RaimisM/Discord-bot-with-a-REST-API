@@ -72,7 +72,7 @@ describe('GET /messages', () => {
     const tomMessage = {
       gifUrl: 'test',
       originalMessage: 'congrats',
-      sprintName: 'WD-1.1',
+      sprintCode: 'WD-1.1',
       sprintId: 1,
       sprintTopic: 'First Steps Into Programming with Python',
       templateId: 1,
@@ -86,10 +86,10 @@ describe('GET /messages', () => {
     expect(response.body.every((msg: any) => msg.username === 'Tom')).toBe(true)
   })
 
-  test('should filter messages by sprintName', async () => {
-    const response = await supertest(app).get('/messages?sprintName=WD-1.1')
+  test('should filter messages by sprintCode', async () => {
+    const response = await supertest(app).get('/messages?sprintCode=WD-1.1')
     expect(response.status).toBe(200)
-    expect(response.body.every((msg: any) => msg.sprintName === 'WD-1.1')).toBe(
+    expect(response.body.every((msg: any) => msg.sprintCode === 'WD-1.1')).toBe(
       true
     )
   })

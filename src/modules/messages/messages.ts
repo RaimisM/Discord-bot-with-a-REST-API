@@ -29,7 +29,7 @@ export function createMessageManager(db: any, discordBot: any) {
 
       await loadUsersData(db, discordBot)
 
-      const sprint = await sprintsRepository.findByName(body.sprintName)
+      const sprint = await sprintsRepository.findByName(body.sprintCode)
       if (!sprint) throw new NotFound('Sprint not found')
 
       const user = await usersRepository.findByUsername(body.username)
@@ -61,7 +61,7 @@ export function createMessageManager(db: any, discordBot: any) {
         content = await generateMessage({
           template: template.text,
           user,
-          sprintName: sprint.sprintName,
+          sprintCode: sprint.sprintCode,
         })
       } catch (error) {
         Logger.error(`generateMessage failed: ${(error as Error).message}`)
@@ -85,7 +85,7 @@ export function createMessageManager(db: any, discordBot: any) {
         gifUrl: imageUrl,
         originalMessage: messageSent.content,
         sprintId: sprint.id,
-        sprintName: sprint.sprintName,
+        sprintCode: sprint.sprintCode,
         sprintTopic: sprint.topicName || '',
         templateId: template.id,
         templateText: template.text,
