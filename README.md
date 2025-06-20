@@ -57,6 +57,7 @@ Discord-Bot-with-a-REST-API
 │   │   │   ├── repository.ts
 │   │   │   ├── schema.ts
 │   │   │   ├── validator.ts
+│   │   │   ├── seedSprints.ts
 │   │   │   ├── sprints.ts
 │   │   │   ├── tests
 │   │   │   │   ├── controller.test.ts

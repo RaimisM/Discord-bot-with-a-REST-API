@@ -14,8 +14,7 @@
     "migrate:gen": "npm run migrate:latest && npm run gen:types",
     "test": "vitest",
     "coverage": "vitest run --coverage",
-    "seed:templates": "tsx src/modules/templates/seed.ts",
-    "seed:sprints": "tsx src/modules/sprints/seedSprints.ts",
+    "seed": "tsx src/seeds/index.ts",
     "migrate:make": "tsx src/utils/createMigration"
   },
   "keywords": [],
