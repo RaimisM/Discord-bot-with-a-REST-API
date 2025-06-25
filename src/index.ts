@@ -8,7 +8,7 @@ import loadImages from '@/modules/images/loadImages'
 
 const PORT = 3000
 
-async function startServer() {
+export async function startServer() {
   try {
     const database = createDatabase(DATABASE_URL)
     const app = createApp(database)
