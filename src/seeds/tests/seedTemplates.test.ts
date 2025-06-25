@@ -15,7 +15,9 @@ describe('seedTemplates', () => {
 
     await seedTemplates(mockDb)
 
-    expect(consoleSpy).toHaveBeenCalledWith(`Seeded ${templates.length} templates`)
+    expect(consoleSpy).toHaveBeenCalledWith(
+      `Seeded ${templates.length} templates`
+    )
     consoleSpy.mockRestore()
   })
 })

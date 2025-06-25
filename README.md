@@ -17,12 +17,15 @@ Discord-Bot-with-a-REST-API
 │   │   │   ├── bin.ts
 │   │   │   └── index.ts
 │   │   └── migrations
+│   │   │   ├── 20250617152100-renameSprintNameToCode.ts
 │   │       └── 20250529150500-createDiscordBotDatabase.ts
 │   ├── middleware
 │   │   └── jsonErrors.ts
 │   ├── modules
 │   │   ├── discord
 │   │   │   └── discordService.ts
+│   │   │   └── tests
+│   │   │       └── discordService.test.ts
 │   │   ├── images
 │   │   │   ├── loadImages.ts
 │   │   │   ├── getImages.ts
