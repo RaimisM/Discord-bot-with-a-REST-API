@@ -33,6 +33,11 @@ describe('Sprints Repository', () => {
     expect(sprints).toHaveLength(fixtures.sprints.length)
   })
 
+  test('should return empty array if no sprints', async () => {
+    const sprints = await repository.findAll()
+    expect(sprints).toEqual([])
+  })
+
   test('should get sprint by sprintCode', async () => {
     const [createdSprint] = await createSprint([fixtures.sprints[0]])
     const sprint = await repository.findByName(createdSprint.sprintCode)
@@ -42,11 +47,21 @@ describe('Sprints Repository', () => {
     })
   })
 
+  test('should return undefined for non-existing sprintCode', async () => {
+    const sprint = await repository.findByName('non-existent-code')
+    expect(sprint).toBeUndefined()
+  })
+
   test('should get sprint by id', async () => {
     const [createdSprint] = await createSprint([fixtures.sprints[0]])
     const sprint = await repository.findById(createdSprint.id)
     expect(sprint).toBeDefined()
     expect(sprint?.id).toBe(createdSprint.id)
+  })
+
+  test('should return undefined for non-existing id', async () => {
+    const sprint = await repository.findById(999999)
+    expect(sprint).toBeUndefined()
   })
 
   test('should add new sprint', async () => {
@@ -56,12 +71,48 @@ describe('Sprints Repository', () => {
     }
     const created = await repository.create(newSprint)
     expect(created).toMatchObject(newSprint)
+    expect(created.id).toBeDefined()
   })
 
-  test('should delete sprint', async () => {
+  test('should throw error if create returns null or undefined', async () => {
+    const originalInsert = db.insertInto
+    db.insertInto = () => ({
+      values: () => ({
+        returningAll: () => ({
+          executeTakeFirst: async () => null,
+        }),
+      }),
+    }) as any
+
+    await expect(repository.create({ sprintCode: 'x', topicName: 'y' })).rejects.toThrow('Failed to create sprint')
+
+    db.insertInto = originalInsert
+  })
+
+  test('should delete sprint and return DeleteResult', async () => {
     const [createdSprint] = await createSprint([fixtures.sprints[0]])
-    await repository.remove(createdSprint.id)
+    const deleteResult = await repository.remove(createdSprint.id)
+    expect(deleteResult).toHaveProperty('numDeletedRows')
     const found = await repository.findById(createdSprint.id)
     expect(found).toBeUndefined()
+  })
+
+  test('should throw error if remove returns empty result', async () => {
+    const originalDelete = db.deleteFrom
+    db.deleteFrom = () => ({
+      where: () => ({
+        execute: async () => [],
+      }),
+    }) as any
+
+    await expect(repository.remove(123)).rejects.toThrow('Failed to delete sprint')
+
+    db.deleteFrom = originalDelete
+  })
+
+  test('should seed default sprints', async () => {
+    await repository.seed()
+    const all = await repository.findAll()
+    expect(all.length).toBeGreaterThan(0)
   })
 })
