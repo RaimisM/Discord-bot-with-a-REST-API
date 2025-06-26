@@ -32,9 +32,15 @@ vi.mock('kysely', () => {
 })
 
 const M = () => ({
-  betterSqliteMock: (globalThis as any).betterSqliteMock as ReturnType<typeof vi.fn>,
-  camelCasePluginMock: (globalThis as any).camelCasePluginMock as ReturnType<typeof vi.fn>,
-  sqliteDialectCtor: (globalThis as any).sqliteDialectCtor as ReturnType<typeof vi.fn>,
+  betterSqliteMock: (globalThis as any).betterSqliteMock as ReturnType<
+    typeof vi.fn
+  >,
+  camelCasePluginMock: (globalThis as any).camelCasePluginMock as ReturnType<
+    typeof vi.fn
+  >,
+  sqliteDialectCtor: (globalThis as any).sqliteDialectCtor as ReturnType<
+    typeof vi.fn
+  >,
   kyselyCtor: (globalThis as any).kyselyCtor as ReturnType<typeof vi.fn>,
 })
 
@@ -43,10 +49,17 @@ beforeEach(() => vi.clearAllMocks())
 describe('createDatabase', () => {
   it('creates a Kysely instance with default (read-write) settings', () => {
     const db = createDatabase('test.db')
-    const { betterSqliteMock, camelCasePluginMock, sqliteDialectCtor, kyselyCtor } = M()
+    const {
+      betterSqliteMock,
+      camelCasePluginMock,
+      sqliteDialectCtor,
+      kyselyCtor,
+    } = M()
 
     expect(db).toEqual(expect.objectContaining({ __isKyselyStub__: true }))
-    expect(betterSqliteMock).toHaveBeenCalledWith('test.db', { readonly: false })
+    expect(betterSqliteMock).toHaveBeenCalledWith('test.db', {
+      readonly: false,
+    })
     expect(sqliteDialectCtor).toHaveBeenCalledWith({
       database: betterSqliteMock.mock.results[0].value,
     })
@@ -60,6 +73,8 @@ describe('createDatabase', () => {
   it('passes the readonly flag through to better-sqlite3', () => {
     const { betterSqliteMock } = M()
     createDatabase(':memory:', { readonly: true })
-    expect(betterSqliteMock).toHaveBeenCalledWith(':memory:', { readonly: true })
+    expect(betterSqliteMock).toHaveBeenCalledWith(':memory:', {
+      readonly: true,
+    })
   })
 })

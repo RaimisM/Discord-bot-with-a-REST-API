@@ -58,7 +58,9 @@ describe('Express App', () => {
 
       const response = await request(app).post('/test-discord').send()
       expect(response.status).toBe(200)
-      expect(mockDiscord.sendMessage).toHaveBeenCalledWith('Test message from override')
+      expect(mockDiscord.sendMessage).toHaveBeenCalledWith(
+        'Test message from override'
+      )
     })
   })
 
@@ -73,9 +75,7 @@ describe('Express App', () => {
       })
 
       const testData = { key: 'value' }
-      const response = await request(app)
-        .post('/test-json')
-        .send(testData)
+      const response = await request(app).post('/test-json').send(testData)
 
       expect(response.status).toBe(200)
       expect(response.body).toEqual(testData)
@@ -88,7 +88,7 @@ describe('Express App', () => {
     })
 
     const routes = ['/users', '/messages', '/templates', '/sprints']
-    routes.forEach(route => {
+    routes.forEach((route) => {
       it(`should respond with status other than 404 from the ${route} endpoint`, async () => {
         const response = await request(app).get(route).send()
         expect(response.status).not.toBe(404)
