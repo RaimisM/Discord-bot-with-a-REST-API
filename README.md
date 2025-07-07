@@ -13,11 +13,13 @@ Discord-Bot-with-a-REST-API
 │   ├── database
 │   │   ├── index.ts
 │   │   ├── types.ts
+│   │   ├── tests
+│   │   │   └── index.test.ts
 │   │   ├── migrate
 │   │   │   ├── bin.ts
 │   │   │   └── index.ts
 │   │   └── migrations
-│   │   │   ├── 20250617152100-renameSprintNameToCode.ts
+│   │       ├── 20250617152100-renameSprintNameToCode.ts
 │   │       └── 20250529150500-createDiscordBotDatabase.ts
 │   ├── middleware
 │   │   └── jsonErrors.ts
@@ -60,7 +62,6 @@ Discord-Bot-with-a-REST-API
 │   │   │   ├── repository.ts
 │   │   │   ├── schema.ts
 │   │   │   ├── validator.ts
-│   │   │   ├── seedSprints.ts
 │   │   │   ├── sprints.ts
 │   │   │   ├── tests
 │   │   │   │   ├── controller.test.ts
@@ -75,7 +76,6 @@ Discord-Bot-with-a-REST-API
 │   │   │   ├── schema.ts
 │   │   │   ├── templates.ts
 │   │   │   ├── validator.ts
-│   │   │   ├── seed.ts
 │   │   │   ├── tests
 │   │   │   │   ├── controller.test.ts
 │   │   │   │   ├── repository.test.ts
@@ -93,6 +93,17 @@ Discord-Bot-with-a-REST-API
 │   │           ├── repository.test.ts
 │   │           ├── users.test.ts
 │   │           └── loadUsersData.test.ts
+│   ├── seeds
+│   │   ├── index.ts
+│   │   ├── seedSprints.ts
+│   │   ├── seedTemplates.ts
+│   │   └── tests
+│   │       ├── index.test.ts
+│   │       ├── seedSprints.test.ts
+│   │       └── seedTemplates.test.ts
+│   ├── tests
+│   │   ├── app.test.ts
+│   │   └── index.test.ts
 │   └── utils
 │       ├── middleware.ts
 │       └── errors
