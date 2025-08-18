@@ -1,3 +1,99 @@
+# Discord bot with a REST API
+
+## Setup
+
+**Note:** Before running the project, you need to configure your environment variables.
+Use the `.env.example` file as a reference for all required database and bot settings.
+
+### Discord Bot Creation and Required Keys
+
+To run the project successfully, you need a Discord Bot, a channel for the bot to post messages, and a Giphy API key. Follow the steps below:
+
+1. **Create a Discord Account**
+   You must have a Discord account. If you don’t, [sign up here](https://discord.com/register).
+
+2. **Create a Discord Bot**
+   - Visit the [Discord Developer Portal](https://discord.com/developers/applications) and create a new application.
+   - Add a Bot to the application.
+   - (Optional) Follow this [video tutorial](https://youtu.be/Q0JlD7gCZRs?si=7zfC9zj2791Jursq&t=350) from **5:50 to 7:50** to learn how to create a bot.
+   - Copy your bot token and add it to the `.env` file as:
+     ```env
+     DISCORD_TOKEN_ID=your_discord_bot_token
+     ```
+   - **Important:** Enable the **“Server Members Intent”** (under *Privileged Gateway Intents*) so the bot can function correctly.
+
+3. **Get the Channel ID**
+   - Invite your bot to your Discord server.
+   - Create a text channel (or use an existing one).
+   - Enable **Developer Mode**:
+     *Discord App → User Settings → App Settings → Advanced → Enable Developer Mode*.
+   - Right-click on the channel and select **Copy Channel ID**.
+   - Add it to the `.env` file as:
+     ```env
+     DISCORD_CHANNEL_ID=your_channel_id
+     ```
+
+4. **Get a Giphy API Key**
+   - Visit [Giphy Developers](https://developers.giphy.com/).
+   - Log in (or create an account) and generate an API key.
+   - Add it to the `.env` file as:
+     ```env
+     GIPHY_API_KEY=your_giphy_api_key
+     ```
+
+---
+
+✅ Once you’ve set the following in your `.env` file:
+- `DISCORD_TOKEN_ID`
+- `DISCORD_CHANNEL_ID`
+- `GIPHY_API_KEY`  
+
+You’re ready to proceed with installation and running the project.
+
+
+
+### Commands
+
+- **Run the tests:**
+  ```bash
+  npm run test
+  ```
+
+- **Get tests coverage report:**
+  ```bash
+  npm run coverage
+  ```
+
+- **Format the code:**
+  ```bash
+  npm run format
+  ```
+
+- **Lint the code:**
+  ```bash
+  npm run lint
+  ```
+
+- **Migrate database to the latest migration:**
+  ```bash
+  npm run migrate:latest
+  ```
+
+- **Generate database types:**
+  ```bash
+  npm run gen:types
+  ```
+
+- **Migrate database to the latest migration and generate database types:**
+  ```bash
+  npm run migrate:gen
+  ```
+
+- **Make a new database migration file:**
+  ```bash
+  npm run migrate:make 'migration name'
+  ```
+
 ## Project Structure
 
 ```bash

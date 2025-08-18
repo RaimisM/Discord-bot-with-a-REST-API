@@ -4,7 +4,8 @@ import DiscordService from '../discordService'
 import NotFound from '@/utils/errors/NotFound'
 
 vi.mock('discord.js', async () => {
-  const actual = await vi.importActual<typeof import('discord.js')>('discord.js')
+  const actual =
+    await vi.importActual<typeof import('discord.js')>('discord.js')
   return {
     ...actual,
     Client: vi.fn().mockImplementation(() => ({
@@ -123,7 +124,9 @@ describe('DiscordService', () => {
   })
 
   it('shutdown should call client.destroy once and not call process.exit in test env', async () => {
-    const destroySpy = (service as any).client.destroy as ReturnType<typeof vi.fn>
+    const destroySpy = (service as any).client.destroy as ReturnType<
+      typeof vi.fn
+    >
     const exitSpy = vi
       .spyOn(process, 'exit')
       // @ts-expect-error – process.exit never returns

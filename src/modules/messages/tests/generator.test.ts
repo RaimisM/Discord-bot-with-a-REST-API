@@ -57,14 +57,13 @@ describe('generateMessage', () => {
   })
 
   test('should leave malformed placeholders untouched', async () => {
-  const options = {
-    template: '{username started sprint on {topic}}',
-    user: { id: '111', username: 'Charlie' },
-    sprintTopic: 'Python',
-  }
+    const options = {
+      template: '{username started sprint on {topic}}',
+      user: { id: '111', username: 'Charlie' },
+      sprintTopic: 'Python',
+    }
 
-  const result = await generateMessage(options)
-  expect(result).toBe('{username started sprint on {topic}}')
-})
-
+    const result = await generateMessage(options)
+    expect(result).toBe('{username started sprint on {topic}}')
+  })
 })

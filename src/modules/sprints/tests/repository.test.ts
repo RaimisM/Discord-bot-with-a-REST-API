@@ -76,15 +76,18 @@ describe('Sprints Repository', () => {
 
   test('should throw error if create returns null or undefined', async () => {
     const originalInsert = db.insertInto
-    db.insertInto = () => ({
-      values: () => ({
-        returningAll: () => ({
-          executeTakeFirst: async () => null,
+    db.insertInto = () =>
+      ({
+        values: () => ({
+          returningAll: () => ({
+            executeTakeFirst: async () => null,
+          }),
         }),
-      }),
-    }) as any
+      }) as any
 
-    await expect(repository.create({ sprintCode: 'x', topicName: 'y' })).rejects.toThrow('Failed to create sprint')
+    await expect(
+      repository.create({ sprintCode: 'x', topicName: 'y' })
+    ).rejects.toThrow('Failed to create sprint')
 
     db.insertInto = originalInsert
   })
@@ -99,13 +102,16 @@ describe('Sprints Repository', () => {
 
   test('should throw error if remove returns empty result', async () => {
     const originalDelete = db.deleteFrom
-    db.deleteFrom = () => ({
-      where: () => ({
-        execute: async () => [],
-      }),
-    }) as any
+    db.deleteFrom = () =>
+      ({
+        where: () => ({
+          execute: async () => [],
+        }),
+      }) as any
 
-    await expect(repository.remove(123)).rejects.toThrow('Failed to delete sprint')
+    await expect(repository.remove(123)).rejects.toThrow(
+      'Failed to delete sprint'
+    )
 
     db.deleteFrom = originalDelete
   })

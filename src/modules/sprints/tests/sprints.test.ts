@@ -14,7 +14,7 @@ const mockRepo = {
 }
 const createMockDb = (): Database => ({ kysely: {} }) as any
 const req = (partial: Partial<Request> = {}): Request =>
-  ({ body: {}, params: {}, query: {}, ...partial } as Request)
+  ({ body: {}, params: {}, query: {}, ...partial }) as Request
 
 vi.mock('../repository', () => ({
   default: () => mockRepo,
@@ -88,7 +88,9 @@ describe('sprintManager', () => {
 
     it('throws BadRequest if sprint exists', async () => {
       mockRepo.findByName.mockResolvedValue(body)
-      await expect(manager.postSprints(req({ body }))).rejects.toThrow(BadRequest)
+      await expect(manager.postSprints(req({ body }))).rejects.toThrow(
+        BadRequest
+      )
     })
   })
 
@@ -125,7 +127,11 @@ describe('sprintManager', () => {
 
   describe('deleteSprints', () => {
     it('deletes an existing sprint', async () => {
-      mockRepo.findById.mockResolvedValue({ id: 123, sprintCode: 'X', topicName: 'Y' })
+      mockRepo.findById.mockResolvedValue({
+        id: 123,
+        sprintCode: 'X',
+        topicName: 'Y',
+      })
       mockRepo.remove.mockResolvedValue({ numDeletedRows: 1n })
 
       const res = await manager.deleteSprints(req({ params: { id: '123' } }))
@@ -141,7 +147,11 @@ describe('sprintManager', () => {
     })
 
     it('throws Error if repo.remove returns 0 rows', async () => {
-      mockRepo.findById.mockResolvedValue({ id: 1, sprintCode: 'X', topicName: 'Y' })
+      mockRepo.findById.mockResolvedValue({
+        id: 1,
+        sprintCode: 'X',
+        topicName: 'Y',
+      })
       mockRepo.remove.mockResolvedValue({ numDeletedRows: 0n })
 
       await expect(
