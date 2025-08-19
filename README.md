@@ -228,3 +228,6 @@ Discord-Bot-with-a-REST-API
 ├── vite.config.ts
 └── vitest.config.js
 ```
+
+**Peer programming exercise**
+[GitHub Repository](https://github.com/RaimisM/Movie-ticket-booking-system) 
