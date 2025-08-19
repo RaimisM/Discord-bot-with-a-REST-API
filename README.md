@@ -50,9 +50,20 @@ To run the project successfully, you need a Discord Bot, a channel for the bot t
 
 You’re ready to proceed with installation and running the project.
 
+## Installation
 
+Install dependencies:
+
+```bash
+npm install
+```
 
 ### Commands
+
+**Seed the database (templates and sprints):**
+```bash
+npm run seed
+```
 
 - **Run the tests:**
   ```bash
@@ -89,10 +100,19 @@ You’re ready to proceed with installation and running the project.
   npm run migrate:gen
   ```
 
-- **Make a new database migration file:**
-  ```bash
-  npm run migrate:make 'migration name'
-  ```
+## Available Scripts
+
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Run in development mode |
+| `npm run test` | Run tests |
+| `npm run coverage` | Generate test coverage report |
+| `npm run format` | Format the code |
+| `npm run lint` | Lint the code |
+| `npm run migrate:latest` | Run latest database migrations |
+| `npm run gen:types` | Generate database types |
+| `npm run migrate:gen` | Run migrations and generate types together |
+| `npm run seed` | Seed the database with templates and sprints |
 
 ## Project Structure
 

@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import createDb from '@/database'
 import { seedTemplates } from './seedTemplates'
 import { seedSprints } from './seedSprints'
@@ -5,16 +6,16 @@ import { seedSprints } from './seedSprints'
 export async function runAllSeeds({ exitOnFinish = true } = {}) {
   const db = createDb('data/database.db')
   try {
-    console.log('Starting database seeding...') // eslint-disable-line no-console
+    console.log('Starting database seeding...')
     await seedTemplates(db)
     await seedSprints(db)
-    console.log('All seeds completed successfully!') // eslint-disable-line no-console
+    console.log('All seeds completed successfully!')
 
     if (exitOnFinish) {
       process.exit(0)
     }
   } catch (err) {
-    console.error('Seeding failed:', err) // eslint-disable-line no-console
+    console.error('Seeding failed:', err)
     if (exitOnFinish) {
       process.exit(1)
     }
