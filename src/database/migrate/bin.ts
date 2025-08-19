@@ -10,6 +10,9 @@ import { migrateToLatest } from '.'
 const MIGRATIONS_PATH = '../migrations'
 
 async function migrateDefault(url: string) {
+  const dir = path.dirname(url)
+  await fs.mkdir(dir, { recursive: true })
+
   const db = new Kysely<Database>({
     dialect: new SqliteDialect({
       database: new SQLite(url),
