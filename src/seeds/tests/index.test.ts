@@ -8,7 +8,9 @@ vi.mock('@/database')
 vi.mock('../seedTemplates')
 vi.mock('../seedSprints')
 
-const mockDb = { destroy: vi.fn() }
+const mockExecute = vi.fn()
+const mockDeleteFrom = vi.fn(() => ({ execute: mockExecute }))
+const mockDb = { destroy: vi.fn(), deleteFrom: mockDeleteFrom }
 
 describe('seeds/index', () => {
   const originalExit = process.exit
@@ -29,6 +31,13 @@ describe('seeds/index', () => {
   it('creates database with correct path', async () => {
     await runAllSeeds({ exitOnFinish: false })
     expect(createDb).toHaveBeenCalledWith('data/database.db')
+  })
+
+  it('clears all tables before seeding', async () => {
+    await runAllSeeds({ exitOnFinish: false })
+    expect(mockDeleteFrom).toHaveBeenCalledWith('messages')
+    expect(mockDeleteFrom).toHaveBeenCalledWith('templates')
+    expect(mockDeleteFrom).toHaveBeenCalledWith('sprints')
   })
 
   it('calls seedTemplates with database', async () => {
@@ -76,5 +85,16 @@ describe('seeds/index', () => {
     vi.mocked(seedSprints).mockRejectedValueOnce(new Error('Boom'))
     await runAllSeeds({ exitOnFinish: false })
     expect(mockDb.destroy).toHaveBeenCalled()
+  })
+
+  it('handles createDb failure', async () => {
+    const mockError = vi.spyOn(console, 'error').mockImplementation(() => {})
+    vi.mocked(createDb).mockImplementationOnce(() => {
+      throw new Error('Database creation failed')
+    })
+    
+    await runAllSeeds({ exitOnFinish: false })
+    expect(mockError).toHaveBeenCalledWith('Seeding failed:', expect.any(Error))
+    mockError.mockRestore()
   })
 })
