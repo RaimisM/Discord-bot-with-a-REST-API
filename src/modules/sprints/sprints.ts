@@ -27,7 +27,7 @@ export const sprintManager = (db: Database) => {
         sprints = sprints.filter((s) => s.sprintCode === parsedQuery.sprintCode)
         if (sprints.length === 0) {
           throw new NotFound(
-            `Sprint with name "${parsedQuery.sprintCode}" not found`
+            `Sprint with code "${parsedQuery.sprintCode}" not found`
           )
         }
       }
@@ -40,12 +40,12 @@ export const sprintManager = (db: Database) => {
     },
 
     postSprints: async (req: Request) => {
-      const parsed = validator.parseSprint(req.body)
+      const parsed = validator.parseSprintCreate(req.body)
 
       const existing = await repo.findByName(parsed.sprintCode)
       if (existing) {
         throw new BadRequest(
-          `Sprint with name "${parsed.sprintCode}" already exists`
+          `Sprint with code "${parsed.sprintCode}" already exists`
         )
       }
 
@@ -66,8 +66,7 @@ export const sprintManager = (db: Database) => {
 
       validator.parseSprint(updatedSprint)
 
-      await repo.remove(id)
-      return repo.create(updatedSprint)
+      return repo.update(id, updatedSprint)
     },
 
     deleteSprints: async (req: Request) => {

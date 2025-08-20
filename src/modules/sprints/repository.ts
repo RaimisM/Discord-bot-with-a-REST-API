@@ -4,12 +4,14 @@ import { sprints as defaultSprints } from '@/modules/sprints/data/sprintData'
 
 export type SprintSelect = Selectable<Sprints>
 export type SprintInsert = Insertable<Sprints>
+export type SprintUpdate = Partial<Omit<Sprints, 'id'>>
 
 export interface SprintsRepository {
   findAll(): Promise<SprintSelect[]>
   findByName(sprintCode: string): Promise<SprintSelect | undefined>
   findById(sprintId: number): Promise<SprintSelect | undefined>
   create(sprint: SprintInsert): Promise<SprintSelect>
+  update(id: number, sprint: SprintUpdate): Promise<SprintSelect | undefined>
   remove(sprintId: number): Promise<DeleteResult>
   seed(): Promise<void>
 }
@@ -42,6 +44,14 @@ export default (db: Kysely<DB>): SprintsRepository => ({
     }
     return result
   },
+
+  update: async (id, sprint) =>
+    db
+      .updateTable('sprints')
+      .set(sprint)
+      .where('id', '=', id)
+      .returningAll()
+      .executeTakeFirst(),
 
   remove: async (sprintId) => {
     const results = await db

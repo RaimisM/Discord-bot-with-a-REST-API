@@ -20,6 +20,10 @@ export const sprintSchema = z.object({
     .positive(),
 })
 
+export const sprintCreateSchema = sprintSchema.omit({ id: true })
+
+export const sprintUpdateSchema = sprintSchema.omit({ id: true }).partial()
+
 export const querySchema = z.object({
   limit: z
     .number({
@@ -40,5 +44,3 @@ export const querySchema = z.object({
     .positive()
     .optional(),
 })
-
-export const sprintUpdateSchema = sprintSchema.omit({ id: true }).partial()

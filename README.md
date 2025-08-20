@@ -60,10 +60,10 @@ npm install
 
 ### Commands
 
-**Seed the database (templates and sprints):**
-```bash
-npm run seed
-```
+- **Seed the database (templates and sprints):**
+  ```bash
+  npm run seed
+  ```
 
 - **Run the tests:**
   ```bash
@@ -113,6 +113,268 @@ npm run seed
 | `npm run gen:types` | Generate database types |
 | `npm run migrate:gen` | Run migrations and generate types together |
 | `npm run seed` | Seed the database with templates and sprints |
+
+
+## Endpoints
+
+### Messages
+
+#### Send Congratulatory Message
+**POST** `/messages`
+
+Send a congratulatory message to a user on Discord.
+
+**Request Body:**
+```json
+{
+  "username": "testymctest_82934",
+  "sprintCode": "WD-1.1"
+}
+```
+
+**Notes:**
+- `username` must be a valid Discord username from the users table
+- `sprintCode` must exist in the sprints table
+
+**Response:**
+```json
+{
+  "id": 1,
+  "username": "testymctest_82934",
+  "sprintCode": "WD-1.1",
+  "sprintId": 3,
+  "sprintTopic": "Intro to Web Development",
+  "originalMessage": "You nailed it! 💪",
+  "templateId": 2,
+  "templateText": "You nailed it! 💪",
+  "gifUrl": "https://giphy.com/example.gif",
+  "createdAt": "2025-08-20T14:00:00.000Z"
+}
+```
+
+#### Get All Messages
+**GET** `/messages`
+
+Retrieve a list of all congratulatory messages.
+
+**Query Parameters:**
+- `username` - Filter by username (e.g., `/messages?username=testymctest_82934`)
+- `sprintCode` - Filter by sprint code (e.g., `/messages?sprint=WD-1.1`)
+
+
+**Response:**
+```json
+[
+  {
+    "id": 1,
+    "username": "testymctest_82934",
+    "sprintCode": "WD-1.1",
+    "sprintId": 3,
+    "sprintTopic": "Intro to Web Development",
+    "originalMessage": "You nailed it! 💪",
+    "templateId": 2,
+    "templateText": "You nailed it! 💪",
+    "gifUrl": "https://giphy.com/example.gif",
+    "createdAt": "2025-08-20T14:00:00.000Z"
+  }
+]
+```
+
+### Templates
+
+#### Create Message Template
+**POST** `/templates`
+
+Create a new congratulatory message template.
+
+**Request Body:**
+```json
+{
+  "text": "Congratulations {username} for completing {topic}!"
+}
+```
+
+**Notes:**
+- `{username}` and `{topic}` placeholders should be included in the template text
+
+**Response:**
+```json
+{
+  "id": 4,
+  "text": "Congratulations {username} for completing {topic}!"
+}
+```
+
+#### Get All Templates
+**GET** `/templates`
+
+Retrieve all message templates.
+
+**Response:**
+```json
+[
+  {
+    "id": 1,
+    "text": "You nailed it! 💪"
+  },
+  {
+    "id": 2,
+    "text": "You did it! I knew you could. 🤗"
+  }
+]
+```
+
+#### Update Template
+**PATCH** `/templates/:id`
+
+Update a specific template.
+
+**Request Body:**
+```json
+{
+  "text": "Way to go, {username}, for completing {sprint}! 🎉"
+}
+```
+
+**Response:**
+```json
+{
+  "id": 2,
+  "text": "Way to go, {username}, for completing {sprint}! 🎉"
+}
+```
+
+#### Delete Template
+**DELETE** `/templates/:id`
+
+Delete a specific template.
+
+**Response:**
+```json
+{
+  "message": "Template deleted successfully"
+}
+```
+
+### Sprints
+
+#### Create Sprint
+**POST** `/sprints`
+
+Create a new sprint.
+
+**Request Body:**
+```json
+{
+  "sprintCode": "WD-3-3",
+  "topicName": "Advanced Frontend Development"
+}
+```
+
+**Response:**
+```json
+{
+  "id": 10,
+  "sprintCode": "WD-3-3",
+  "topicName": "Advanced Frontend Development"
+}
+```
+
+#### Get All Sprints
+**GET** `/sprints`
+
+Retrieve all sprints.
+
+**Response:**
+```json
+[
+  {
+    "id": 1,
+    "sprintCode": "WD-1-1",
+    "topicName": "First Steps Into Programming with Python"
+  },
+  {
+    "id": 2,
+    "sprintCode": "WD-1-2",
+    "topicName": "Intermediate Programming with Python"
+  },
+  {
+    "id": 3,
+    "sprintCode": "WD-2-1",
+    "topicName": "HTML and CSS - the Foundation of Web Pages"
+  }
+]
+```
+
+#### Update Sprint
+**PATCH** `/sprints/:id`
+
+Update an existing sprint.
+
+**Request Body:**
+```json
+{
+  "sprintCode": "WD-2-1",
+  "topicName": "Advanced HTML and CSS Techniques"
+}
+```
+
+**Response:**
+```json
+{
+  "id": 3,
+  "sprintCode": "WD-2-1",
+  "topicName": "Advanced HTML and CSS Techniques"
+}
+```
+
+#### Delete Sprint
+**DELETE** `/sprints/:id`
+
+Delete a specific sprint.
+
+**Response:**
+```json
+{
+  "message": "Sprint deleted successfully"
+}
+```
+
+### Users
+
+#### Get All Users
+**GET** `/users`
+
+Retrieve all users from the database.
+
+**Notes:**
+- Users are fetched from the Discord channel when the bot starts and stored in the database
+- This endpoint is useful to check valid usernames for message creation
+
+**Response:**
+```json
+[
+  {
+    "id": "123456789012345678",
+    "username": "johdoe"
+  },
+  {
+    "id": "987654321098765432",
+    "username": "janedoe"
+  }
+]
+```
+
+## Error Handling
+
+The API returns appropriate HTTP status codes:
+- `200` - Success
+- `201` - Created
+- `400` - Bad Request (invalid data)
+- `404` - Not Found
+- `500` - Internal Server Error
+
+
 
 ## Project Structure
 

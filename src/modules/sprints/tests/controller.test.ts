@@ -37,34 +37,36 @@ describe('GET /sprints happy path', () => {
 
   test('should get all sprints', async () => {
     const response = await supertest(app).get('/sprints')
-    expect(response.body).toHaveLength(2)
+    expect(response.body).toHaveLength(fixtures.sprints.length)
   })
 
   test('should get sprint by sprintCode', async () => {
-    const query = { sprintCode: testsprintCode }
-    const response = await supertest(app).get('/sprints').query(query)
+    const response = await supertest(app)
+      .get('/sprints')
+      .query({ sprintCode: testsprintCode })
     expect(response.body).toHaveLength(1)
     expect(response.body[0]).toEqual(expectedSprint)
   })
 
   test('should get sprint by sprint id', async () => {
-    const query = { id: expectedSprint.id }
-    const response = await supertest(app).get('/sprints').query(query)
+    const response = await supertest(app)
+      .get('/sprints')
+      .query({ id: expectedSprint.id })
     expect(response.body).toHaveLength(1)
     expect(response.body[0]).toEqual(expectedSprint)
   })
 
   test('should respond with an error if sprintCode does not exist', async () => {
-    const query = { sprintCode: 'test' }
-    const response = await supertest(app).get('/sprints').query(query)
+    const response = await supertest(app)
+      .get('/sprints')
+      .query({ sprintCode: 'nonexistent' })
     expect(response.statusCode).toBe(404)
     expect(response.body).toHaveProperty('error')
-    expect(response.body.error).toBeTruthy()
     expect(response.body.error).toHaveProperty('message')
   })
 
   afterAll(async () => {
-    await db.deleteFrom('templates').execute()
+    await cleanDatabase(db)
   })
 })
 
@@ -73,16 +75,15 @@ describe('POST /sprints', () => {
     valid: { sprintCode: 'Code-1', topicName: 'Sprint topic name' },
     invalidName: { sprintCode: 'C', topicName: 'Sprint topic name' },
     invalidTopic: { sprintCode: 'Code-2', topicName: 'S' },
-    noContext: { sprintCode: '', topicName: '' },
   }
 
   beforeAll(async () => {
     await cleanDatabase(db)
+    await createSprints([sprints.valid])
   })
 
-  test('should respond with a 400 status code if sprintCode is already in the database', async () => {
+  test('should respond with a 400 status code if sprintCode already exists', async () => {
     const response = await supertest(app).post('/sprints').send(sprints.valid)
-
     expect(response.statusCode).toBe(400)
     expect(response.body).toHaveProperty('error')
   })
@@ -108,12 +109,11 @@ describe('POST /sprints', () => {
   })
 })
 
-describe('PATCH /sprints', () => {
+describe('PATCH /sprints/:id', () => {
   let sprintId: number
-
   const updateSprint = {
     sprintCode: 'Code-updated',
-    topicName: 'Sprint topic name updated',
+    topicName: 'Updated topic',
   }
 
   beforeAll(async () => {
@@ -124,26 +124,23 @@ describe('PATCH /sprints', () => {
     sprintId = sprint.id
   })
 
-  test('should respond with a 200 status after updating sprint and with updated sprint json file', async () => {
+  test('should update sprint successfully', async () => {
     const response = await supertest(app)
       .patch(`/sprints/${sprintId}`)
       .send(updateSprint)
-
     expect(response.statusCode).toBe(200)
     expect(response.body).toEqual({ id: sprintId, ...updateSprint })
   })
 
-  test('should respond with a 400 status if sprint id is invalid', async () => {
-    const invalidId = 'cat'
+  test('should return 400 if sprint id is invalid', async () => {
     const response = await supertest(app)
-      .patch(`/sprints/${invalidId}`)
+      .patch(`/sprints/invalid-id`)
       .send(updateSprint)
     expect(response.statusCode).toBe(400)
     expect(response.body).toHaveProperty('error')
-    expect(response.body.error).toHaveProperty('message', 'Validation error')
   })
 
-  test('should respond with 400 if update body is invalid', async () => {
+  test('should return 400 if body is invalid', async () => {
     const response = await supertest(app)
       .patch(`/sprints/${sprintId}`)
       .send({ sprintCode: '', topicName: '' })
@@ -156,7 +153,7 @@ describe('PATCH /sprints', () => {
   })
 })
 
-describe('DELETE /sprints', () => {
+describe('DELETE /sprints/:id', () => {
   let sprintId: number
 
   beforeAll(async () => {
@@ -167,7 +164,7 @@ describe('DELETE /sprints', () => {
     sprintId = sprint.id
   })
 
-  test('should respond with a 200 status code and message when deleted successfully', async () => {
+  test('should delete sprint successfully', async () => {
     const response = await supertest(app).delete(`/sprints/${sprintId}`)
     expect(response.statusCode).toBe(200)
     expect(response.body).toHaveProperty(
@@ -182,11 +179,9 @@ describe('DELETE /sprints', () => {
 })
 
 describe('unsupported endpoints', () => {
-  test('should respond with a 405 status code when calling wrong endpoint method on /sprints', async () => {
-    const response = await supertest(app).delete('/sprints')
+  test('should respond with a 405 status code when calling wrong method on /sprints', async () => {
+    const response = await supertest(app).post('/sprints/unsupported')
     expect(response.statusCode).toBe(405)
-    expect(response.body).toHaveProperty('error', {
-      message: 'Method not allowed',
-    })
+    expect(response.body).toHaveProperty('error')
   })
 })

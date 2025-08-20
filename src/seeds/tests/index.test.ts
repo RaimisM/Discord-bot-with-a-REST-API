@@ -92,7 +92,7 @@ describe('seeds/index', () => {
     vi.mocked(createDb).mockImplementationOnce(() => {
       throw new Error('Database creation failed')
     })
-    
+
     await runAllSeeds({ exitOnFinish: false })
     expect(mockError).toHaveBeenCalledWith('Seeding failed:', expect.any(Error))
     mockError.mockRestore()

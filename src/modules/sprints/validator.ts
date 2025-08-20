@@ -1,5 +1,10 @@
 import { z } from 'zod'
-import { sprintSchema, querySchema, sprintUpdateSchema } from './schema'
+import {
+  sprintSchema,
+  querySchema,
+  sprintUpdateSchema,
+  sprintCreateSchema,
+} from './schema'
 
 const idSchema = z.number().positive()
 
@@ -9,6 +14,9 @@ const sprintValidators = () => ({
   parseSprintQuery: (limit: unknown) => querySchema.parse(limit),
 
   parseSprint: (sprint: unknown) => sprintSchema.parse(sprint),
+
+  parseSprintCreate: (sprint: unknown) => sprintCreateSchema.parse(sprint),
+
   parseSprintUpdatable: (sprint: unknown) => sprintUpdateSchema.parse(sprint),
 })
 

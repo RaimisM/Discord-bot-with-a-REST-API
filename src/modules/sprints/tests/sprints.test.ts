@@ -10,6 +10,7 @@ const mockRepo = {
   findByName: vi.fn(),
   findById: vi.fn(),
   create: vi.fn(),
+  update: vi.fn(),
   remove: vi.fn(),
 }
 const createMockDb = (): Database => ({ kysely: {} }) as any
@@ -23,6 +24,7 @@ const validatorSpies = {
   parseSprintId: vi.fn((x) => x),
   parseSprintQuery: vi.fn((x) => x),
   parseSprint: vi.fn((x) => x),
+  parseSprintCreate: vi.fn((x) => x),
   parseSprintUpdatable: vi.fn((x) => x),
 }
 vi.mock('../validator', () => ({
@@ -75,19 +77,20 @@ describe('sprintManager', () => {
   })
 
   describe('postSprints', () => {
-    const body = { sprintCode: 'Sprint A', topicName: 'Topic 1', id: 1 }
+    const body = { sprintCode: 'Sprint A', topicName: 'Topic 1' }
 
     it('creates a new sprint when not duplicate', async () => {
       mockRepo.findByName.mockResolvedValue(undefined)
-      mockRepo.create.mockResolvedValue({ ...body })
+      mockRepo.create.mockResolvedValue({ ...body, id: 1 })
 
       const result = await manager.postSprints(req({ body }))
       expect(mockRepo.create).toHaveBeenCalledWith(body)
-      expect(result).toEqual(body)
+      expect(result).toEqual({ ...body, id: 1 })
+      expect(validatorSpies.parseSprintCreate).toHaveBeenCalledWith(body)
     })
 
     it('throws BadRequest if sprint exists', async () => {
-      mockRepo.findByName.mockResolvedValue(body)
+      mockRepo.findByName.mockResolvedValue({ id: 1, ...body })
       await expect(manager.postSprints(req({ body }))).rejects.toThrow(
         BadRequest
       )
@@ -98,9 +101,9 @@ describe('sprintManager', () => {
     const existing = { id: 7, sprintCode: 'OLD', topicName: 'X' }
 
     it('updates an existing sprint', async () => {
+      const updatedSprint = { ...existing, topicName: 'NEW' }
       mockRepo.findById.mockResolvedValue(existing)
-      mockRepo.remove.mockResolvedValue({ numDeletedRows: 1n })
-      mockRepo.create.mockResolvedValue({ ...existing, topicName: 'NEW' })
+      mockRepo.update.mockResolvedValue(updatedSprint)
 
       const request = req({
         params: { id: '7' },
@@ -108,13 +111,22 @@ describe('sprintManager', () => {
       })
       const out = await manager.patchSprints(request)
 
-      expect(mockRepo.remove).toHaveBeenCalledWith(7)
-      expect(mockRepo.create).toHaveBeenCalledWith({
+      expect(validatorSpies.parseSprintId).toHaveBeenCalledWith(7)
+      expect(validatorSpies.parseSprintUpdatable).toHaveBeenCalledWith({
+        topicName: 'NEW',
+      })
+      expect(validatorSpies.parseSprint).toHaveBeenCalledWith({
         id: 7,
         sprintCode: 'OLD',
         topicName: 'NEW',
       })
-      expect(out.topicName).toBe('NEW')
+      expect(mockRepo.update).toHaveBeenCalledWith(7, {
+        id: 7,
+        sprintCode: 'OLD',
+        topicName: 'NEW',
+      })
+      expect(out).toEqual(updatedSprint)
+      expect(out!.topicName).toBe('NEW')
     })
 
     it('throws NotFound if id does not exist', async () => {
@@ -135,6 +147,7 @@ describe('sprintManager', () => {
       mockRepo.remove.mockResolvedValue({ numDeletedRows: 1n })
 
       const res = await manager.deleteSprints(req({ params: { id: '123' } }))
+      expect(validatorSpies.parseSprintId).toHaveBeenCalledWith(123)
       expect(mockRepo.remove).toHaveBeenCalledWith(123)
       expect(res).toEqual({ message: 'Sprint deleted successfully' })
     })

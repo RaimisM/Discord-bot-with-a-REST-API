@@ -5,12 +5,12 @@ import { seedSprints } from './seedSprints'
 
 export async function runAllSeeds({ exitOnFinish = true } = {}) {
   let db: ReturnType<typeof createDb> | null = null
-  
+
   try {
     console.log('Starting database seeding...')
-    
+
     db = createDb('data/database.db')
-    
+
     if (!db) {
       throw new Error('Failed to create database connection')
     }
@@ -48,6 +48,9 @@ export async function runAllSeeds({ exitOnFinish = true } = {}) {
 
 if (typeof require !== 'undefined' && require.main === module) {
   runAllSeeds()
-} else if (typeof import.meta !== 'undefined' && import.meta.url === `file://${process.argv[1]}`) {
+} else if (
+  typeof import.meta !== 'undefined' &&
+  import.meta.url === `file://${process.argv[1]}`
+) {
   runAllSeeds()
 }
