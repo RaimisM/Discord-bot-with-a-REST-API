@@ -159,7 +159,7 @@ Retrieve a list of all congratulatory messages.
 
 **Query Parameters:**
 - `username` - Filter by username (e.g., `/messages?username=testymctest_82934`)
-- `sprintCode` - Filter by sprint code (e.g., `/messages?sprint=WD-1.1`)
+- `sprintCode` - Filter by sprint code (e.g., `/messages?sprintCode=WD-1.1`)
 
 
 **Response:**
